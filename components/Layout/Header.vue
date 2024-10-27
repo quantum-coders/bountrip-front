@@ -1,10 +1,13 @@
 <template>
-	<header class="layout-header">
-		<svgo-logo class="logo" />
+	<header class="layout-header" :class="{ home: props.home }">
+		<nuxt-link to="/">
+			<svgo-logo class="logo" />
+		</nuxt-link>
 
 		<nav class="header-navigation">
 			<ul>
 				<li><nuxt-link to="/">Home</nuxt-link></li>
+				<li><nuxt-link to="/bounties">Bounties</nuxt-link></li>
 				<li><nuxt-link to="/about">About</nuxt-link></li>
 				<li class="login"><nuxt-link to="/contact">Connect wallet</nuxt-link></li>
 			</ul>
@@ -13,6 +16,14 @@
 </template>
 
 <script setup>
+
+	const props = defineProps({
+		home: {
+			type: Boolean,
+			default: false
+		}
+	});
+
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
@@ -20,12 +31,22 @@
 
 	.layout-header
 		position: fixed
-		border-bottom: 0.25rem solid white
 		padding: 1rem
 		width: calc(100% - 1rem)
 		z-index: 100
 		display: flex
 		align-items: center
+		background: var(--brand1)
+		height: 64px
+
+		&.home
+			border-bottom: 0.25rem solid white
+			background: transparent
+
+		&:not(.home)
+			:deep(.logo)
+				[id$=bup]
+					fill: white !important
 
 		.logo
 			width: 150px

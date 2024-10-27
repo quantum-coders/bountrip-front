@@ -7,7 +7,7 @@
 	</div>
 
 	<div class="layout-wrapper">
-		<layout-header />
+		<layout-header :home="isHome" />
 		<main class="layout-main">
 			<nuxt-page />
 		</main>
@@ -16,6 +16,12 @@
 </template>
 
 <script setup>
+
+	// check if the page is the home page
+	const isHome = computed(() => {
+		return useRoute().path === '/';
+	});
+
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
@@ -57,6 +63,7 @@
 
 	.layout-wrapper
 		display: flex
+		flex-grow: 1
 		width: 100%
 		flex-direction: column
 

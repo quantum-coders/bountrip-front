@@ -3,7 +3,7 @@
 		<div class="container">
 			<h2 class="title text-center mb-4">Hottest Bounties</h2>
 
-			<div class="bounties">
+			<div class="bounties mb-4">
 				<div class="row gx-3">
 					<div class="col-3" v-for="i in 4">
 						<article class="bounty-card">
@@ -17,6 +17,10 @@
 					</div>
 				</div>
 			</div>
+
+			<p class="text-end">
+				<nuxt-link to="/bounties" class="btn btn-lg btn-primary">View all Bounties</nuxt-link>
+			</p>
 		</div>
 	</div>
 </template>

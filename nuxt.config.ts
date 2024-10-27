@@ -6,6 +6,7 @@ export default defineNuxtConfig({
 	googleFonts: {
 		families: {
 			'DM+Sans': true,
+			'Barlow': true
 		}
 	}
 })
