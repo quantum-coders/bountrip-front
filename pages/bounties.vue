@@ -16,7 +16,7 @@
 						<nuxt-link class="bounty-link" to="/bounty" />
 
 						<div class="bounty-image">
-							<span class="bounty-price">50 NEAR</span>
+							<span class="bounty-prize">50 NEAR</span>
 						</div>
 						<div class="bounty-info">
 							<h4>Looking for the best Tokyo adventure</h4>
@@ -97,7 +97,7 @@
 				background: url('/images/thumb.jpg') no-repeat center center
 				background-size: cover
 
-				.bounty-price
+				.bounty-prize
 					font-weight: bold
 					margin-bottom: 0.5rem
 					z-index: 1

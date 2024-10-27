@@ -7,7 +7,7 @@
 				<div class="row gx-3">
 					<div class="col-3" v-for="i in 4">
 						<article class="bounty-card">
-							<span class="bounty-price">50 NEAR</span>
+							<span class="bounty-prize">50 NEAR</span>
 
 							<div class="bounty-info">
 								<h3 class="bounty-title">Looking for the best Tokyo adventure</h3>
@@ -72,7 +72,7 @@
 			border-radius: 0.5rem
 			z-index: 0
 
-		.bounty-price
+		.bounty-prize
 			font-weight: bold
 			margin-bottom: 0.5rem
 			z-index: 1

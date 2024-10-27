@@ -16,6 +16,20 @@
 				<div class="shadow-left"></div>
 				<div class="shadow-right"></div>
 
+				<aside class="bounty-sidebar">
+					<p class="bounty-prize">
+						<small>Prize</small>
+						<span>
+							<span class="icon">
+								<icon name="simple-icons:near" />
+							</span>
+							50 NEAR
+						</span>
+					</p>
+
+					<a href="#" class="btn btn-primary w-100">Submit your plan</a>
+				</aside>
+
 				<div class="bounty-description">
 					<p>Hey there, planning wizards! I'm looking for an awesome travel itinerary for a solo trip to Tokyo, and I’m calling all otaku and gaming experts for help. I’m in my 30s, so I’m looking for a plan that balances classic otaku experiences with some cool, more mature, under-the-radar spots. I’d love recommendations for must-visit anime and gaming hubs, lesser-known retro game stores, iconic arcades, anime museums, and even themed cafes that cater to serious fans.</p>
 
@@ -93,6 +107,41 @@
 			background: white
 			min-height: 25dvh
 			border-radius: 1rem 1rem 0 0
+			display: flex
+
+			.bounty-sidebar
+				width: 300px
+				flex-shrink: 0
+				border-right: 1px solid #DDD
+				padding: 1rem
+
+				.bounty-prize
+					font-size: 2rem
+					line-height: 1
+
+					small
+						font-size: 1rem
+						display: block
+						margin-bottom: 0.5rem
+
+					span
+						display: flex
+						align-items: center
+						gap: 0.5rem
+
+						.icon
+							background: var(--brand2)
+							color: white
+							width: 1.2em
+							height: 1.2em
+							border-radius: 50%
+							display: flex
+							align-items: center
+							justify-content: center
+
+							.iconify
+								font-size: 0.6em
+								top: 0.015em
 
 			.bounty-description
 				padding: 3rem
