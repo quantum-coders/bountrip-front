@@ -1,17 +1,27 @@
 <template>
 	<header class="layout-header" :class="{ home: props.home }">
-		<nuxt-link to="/">
-			<svgo-logo class="logo" />
-		</nuxt-link>
+		<div class="container d-flex align-items-center">
+			<nuxt-link to="/">
+				<svgo-logo class="logo" />
+			</nuxt-link>
 
-		<nav class="header-navigation">
-			<ul>
-				<li><nuxt-link to="/">Home</nuxt-link></li>
-				<li><nuxt-link to="/bounties">Bounties</nuxt-link></li>
-				<li><nuxt-link to="/about">About</nuxt-link></li>
-				<li class="login"><nuxt-link to="/contact">Connect wallet</nuxt-link></li>
-			</ul>
-		</nav>
+			<nav class="header-navigation">
+				<ul>
+					<li>
+						<nuxt-link to="/">Home</nuxt-link>
+					</li>
+					<li>
+						<nuxt-link to="/bounties">Bounties</nuxt-link>
+					</li>
+					<li>
+						<nuxt-link to="/about">About</nuxt-link>
+					</li>
+					<li class="login">
+						<nuxt-link to="/contact">Connect wallet</nuxt-link>
+					</li>
+				</ul>
+			</nav>
+		</div>
 	</header>
 </template>
 
@@ -38,9 +48,10 @@
 		align-items: center
 		background: var(--brand1)
 		height: 64px
+		top: 0.5rem
+		border-bottom: 0.25rem solid white
 
 		&.home
-			border-bottom: 0.25rem solid white
 			background: transparent
 
 		&:not(.home)

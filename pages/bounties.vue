@@ -6,19 +6,22 @@
 				<div class="banner">
 					<div class="banner-info">
 						<h4>Earn money<br>sharing your trip tips</h4>
-						<p>Design the ultimate travel plan for a fellow adventurer and earn NEAR rewards!</p>
-						<p class="mb-0"><a href="#" class="btn btn-primary px-4">Sign up</a></p>
+						<p class="mb-2">Design the ultimate travel plan for a fellow adventurer and earn NEAR rewards!</p>
+						<p class="mb-0"><a href="#" class="btn btn-primary btn-sm px-4">Sign up</a></p>
 					</div>
 				</div>
 
 				<div class="bounty-list">
 					<article class="bounty" v-for="i in 10">
+						<nuxt-link class="bounty-link" to="/bounty" />
+
 						<div class="bounty-image">
 							<span class="bounty-price">50 NEAR</span>
 						</div>
 						<div class="bounty-info">
 							<h4>Looking for the best Tokyo adventure</h4>
-							<p class="mb-0">Hello friends! I'm looking for the ultimate adventure in Japan.</p>
+							<p>Hello friends! I'm looking for the ultimate adventure in Japan.</p>
+							<bounty-meta-info class="mb-0" />
 						</div>
 					</article>
 				</div>
@@ -49,10 +52,10 @@
 		border-left: 1px solid #DDD
 
 	.banner
-		aspect-ratio: 3
+		aspect-ratio: 4
 		border-radius: 0.5rem
-		background: var(--brand2) url('/images/banner.jpg') no-repeat center bottom
-		background-size: cover
+		background: var(--brand2) url('/images/banner.jpg') no-repeat right bottom
+		background-size: auto 100%
 		padding: 0 3rem
 		display: flex
 		align-items: center
@@ -61,6 +64,7 @@
 
 		.banner-info
 			max-width: 60%
+			padding: 1rem 0
 
 			h4
 				font-weight: 900
@@ -78,11 +82,19 @@
 			border-radius: 0.5rem
 			overflow: clip
 			border: 1px solid var(--bs-border-color)
+			cursor: pointer
+
+			&:hover
+				border-color: var(--brand2)
+
+			.bounty-link
+				@extend .absolute-full
+				z-index: 2
 
 			.bounty-image
 				width: 150px
 				flex-shrink: 0
-				background: url('/images/splash/japan.jpg') no-repeat center center
+				background: url('/images/thumb.jpg') no-repeat center center
 				background-size: cover
 
 				.bounty-price
@@ -110,5 +122,8 @@
 				p
 					text-wrap: balance
 					margin-bottom: 0.5rem
+
+					&.meta
+						font-size: 0.75rem
 
 </style>
