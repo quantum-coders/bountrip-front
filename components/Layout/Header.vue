@@ -17,7 +17,7 @@
 						<nuxt-link to="/about">About</nuxt-link>
 					</li>
 					<li class="login">
-						<nuxt-link to="/contact">Connect wallet</nuxt-link>
+						<wallet />
 					</li>
 				</ul>
 			</nav>
