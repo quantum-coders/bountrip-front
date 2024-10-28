@@ -30,8 +30,8 @@
 	const props = defineProps({
 		home: {
 			type: Boolean,
-			default: false
-		}
+			default: false,
+		},
 	});
 
 </script>

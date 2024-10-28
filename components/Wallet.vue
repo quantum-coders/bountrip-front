@@ -22,7 +22,7 @@
 
 	// Handle button click for connecting or disconnecting the wallet
 	const handleClick = () => {
-		if (!isConnected.value) {
+		if(!isConnected.value) {
 			walletStore.connectWallet();
 		} else {
 			walletStore.disconnectWallet();
