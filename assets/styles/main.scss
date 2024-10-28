@@ -30,6 +30,11 @@ $theme-colors: map-merge($theme-colors, $brand-colors);
 
 #near-wallet-selector-modal {
 
+	--secondary-button-bg-color: transparent;
+	--secondary-button-border-color: #{$brand2};
+	--secondary-button-text-color: #{$brand2};
+
+	--gradient-dark-icon: #{$brand2};
 	--selected-wallet-bg: #{$brand1};
 	--wallet-option-outline-color: #{$brand2};
 	--wallet-selector-selected-wallet-bg: #{$brand1};
