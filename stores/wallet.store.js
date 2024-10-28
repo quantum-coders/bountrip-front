@@ -1,30 +1,41 @@
-import { defineStore } from 'pinia';
-import { keyStores } from 'near-api-js';
-import { setupWalletSelector } from '@near-wallet-selector/core';
-import { setupNearWallet } from '@near-wallet-selector/near-wallet';
-import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
-import { setupSender } from '@near-wallet-selector/sender';
-import { setupNearFi } from '@near-wallet-selector/nearfi';
-import { setupHereWallet } from '@near-wallet-selector/here-wallet';
-import { setupMathWallet } from '@near-wallet-selector/math-wallet';
-import { setupNightlyConnect } from '@near-wallet-selector/nightly-connect';
-import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
-import { setupLedger } from '@near-wallet-selector/ledger';
-import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
-import { setupDefaultWallets } from '@near-wallet-selector/default-wallets';
-import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet';
-import { setupModal } from '@near-wallet-selector/modal-ui';
-import { JsonRpcProvider } from '@near-js/providers';
+// store/walletStore.js
+import {defineStore} from 'pinia';
+import {keyStores, utils, transactions, WalletConnection} from 'near-api-js';
+import {setupWalletSelector} from '@near-wallet-selector/core';
+import {setupMyNearWallet} from '@near-wallet-selector/my-near-wallet';
+import {setupSender} from '@near-wallet-selector/sender';
+import {setupNearFi} from '@near-wallet-selector/nearfi';
+import {setupHereWallet} from '@near-wallet-selector/here-wallet';
+import {setupMathWallet} from '@near-wallet-selector/math-wallet';
+import {setupNightlyConnect} from '@near-wallet-selector/nightly-connect';
+import {setupMeteorWallet} from '@near-wallet-selector/meteor-wallet';
+import {setupLedger} from '@near-wallet-selector/ledger';
+import {setupCoin98Wallet} from '@near-wallet-selector/coin98-wallet';
+import {setupModal} from '@near-wallet-selector/modal-ui';
 
 export const useWalletStore = defineStore('wallet', () => {
 	const config = useRuntimeConfig();
-	const baseURL = config.public.baseURL;
+    const baseURL = config.public.baseURL;
 
-	const selector = ref(null);
-	const modal = ref(null);
-	const wallet = ref(null);
-	const account = ref(null);
-	const isConnected = ref(false);
+    // Estado original del wallet
+    const selector = ref(null);
+    const modal = ref(null);
+    const wallet = ref(null);
+    const account = ref(null);
+    const isConnected = ref(false);
+
+    // Nuevo estado para bounties
+    const bounties = ref([]);
+    const currentBounty = ref(null);
+    const creatorBounties = ref([]);
+    const participantBounties = ref([]);
+    const loading = ref(false);
+    const error = ref(null);
+
+    // Getters
+    const activeBounties = computed(() =>
+        bounties.value.filter(bounty => bounty.isActive)
+    );
 
 	const connectionConfig = {
 		networkId: 'testnet',
@@ -43,20 +54,22 @@ export const useWalletStore = defineStore('wallet', () => {
 			icon: 'https://s3.coinmarketcap.com/static-gravity/image/ef3ad80e423a4449ab8e961b0d1edea4.png',
 		},
 	});
+
 	const initialize = async () => {
 		console.info('[Paso 0] Inicializando...');
-		if(selector.value) return;
-
+		const localStorageAuthData = localStorage.getItem('near_app_wallet_auth_key');
+		let showModal = true;
+		// Si hay datos de autenticación en localStorage, no mostrar el modal
+		if (localStorageAuthData) {
+			console.info('[Paso 0.1] Datos de Local Storage encontrados!');
+			showModal = false;
+		}
 		try {
 			console.info('[Paso 1] Inicializando Selector de Billetera...');
-
-			const provider = new JsonRpcProvider({ url: connectionConfig.nodeUrl });
-
 			selector.value = await setupWalletSelector({
 				network: 'testnet',
-				fallbackRpcUrls: [ connectionConfig.nodeUrl ],
+				fallbackRpcUrls: [connectionConfig.nodeUrl],
 				modules: [
-					//setupNearWallet(),
 					setupMyNearWallet(),
 					setupSender(),
 					setupNearFi(),
@@ -77,10 +90,9 @@ export const useWalletStore = defineStore('wallet', () => {
 
 			console.info('[Paso 3] UI Modal Inicializada!');
 
-			modal.value.show();
+			if (showModal) modal.value.show();
 
-			console.info('[Paso 3] UI Modal Inicializada!');
-
+			// Escuchar cambios en la cuenta
 			selector.value.on('accountChanged', (newAccount) => {
 				account.value = newAccount;
 				isConnected.value = !!newAccount;
@@ -88,22 +100,22 @@ export const useWalletStore = defineStore('wallet', () => {
 
 			console.info('[Paso 4] Listener de Cuenta Inicializado!');
 
+			// Escuchar cambios en la wallet
 			selector.value.on('walletChanged', (newWallet) => {
 				wallet.value = newWallet;
 			});
 
-			const wallet = await selector.value.wallet();
+			const currentWallet = await selector.value.wallet();
 
-			console.log('selector', await wallet.getAccounts());
+			console.log('selector', await currentWallet.getAccounts());
 
-			const accounts = await selector.value.getAccounts();
-			if(accounts.length > 0) {
+			const accounts = await currentWallet.getAccounts();
+			if (accounts.length > 0) {
 				account.value = accounts[0];
 				isConnected.value = true;
 				wallet.value = await selector.value.wallet();
 			}
-
-		} catch(error) {
+		} catch (error) {
 			console.error('Falló la inicialización:', error);
 			throw error;
 		}
@@ -111,9 +123,9 @@ export const useWalletStore = defineStore('wallet', () => {
 
 	const connectWallet = async () => {
 		try {
-			if(!selector.value) await initialize();
+			if (!selector.value) await initialize();
 			modal.value.show();
-		} catch(error) {
+		} catch (error) {
 			console.error('Falló la conexión de la billetera:', error);
 			throw error;
 		}
@@ -121,90 +133,217 @@ export const useWalletStore = defineStore('wallet', () => {
 
 	const disconnectWallet = async () => {
 		try {
-			if(!selector.value) return;
+			if (!selector.value) return;
 			const currentWallet = await selector.value.wallet();
-			if(currentWallet) {
+			if (currentWallet) {
 				await currentWallet.signOut();
 				account.value = null;
 				isConnected.value = false;
 				wallet.value = null;
 			}
-		} catch(error) {
+		} catch (error) {
 			console.error('Falló la desconexión de la billetera:', error);
 			throw error;
 		}
 	};
 
-	const signIn = async () => {
-		try {
-			if(!selector.value) await initialize();
-			wallet.value = await selector.value.wallet();
-			const accounts = await wallet.value.signIn({
-				contractId: 'quantum-coders.testnet',
-				methodNames: [],
-			});
-			account.value = accounts[0];
-			isConnected.value = true;
-		} catch(error) {
-			console.error('Falló el inicio de sesión:', error);
-			throw error;
-		}
-	};
+// Funciones de bounties
+    const fetchAllBounties = async () => {
+        try {
+            loading.value = true;
+            const response = await $fetch(`${baseURL}/bounties`);
+            bounties.value = response.data;
+        } catch (error) {
+            console.error('Error fetching bounties:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
 
-	const signOut = async () => {
-		try {
-			await disconnectWallet();
-		} catch(error) {
-			console.error('Falló el cierre de sesión:', error);
-			throw error;
-		}
-	};
+    const fetchBounty = async (bountyId) => {
+        try {
+            loading.value = true;
+            const response = await $fetch(`${baseURL}/bounties/${bountyId}`);
+            currentBounty.value = response.data;
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching bounty:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
 
-	const fetchData = async (endpoint, options = {}) => {
-		try {
-			const response = await fetch(`${ baseURL }${ endpoint }`, {
-				...options,
-				headers: {
-					'Content-Type': 'application/json',
-					...options.headers,
-				},
-			});
+    const fetchCreatorBounties = async (creatorId) => {
+        try {
+            loading.value = true;
+            const response = await $fetch(`${baseURL}/bounties/creator/${creatorId}`);
+            creatorBounties.value = response.data;
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching creator bounties:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
 
-			if(!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || 'Falló la obtención de datos');
-			}
+    const fetchParticipantBounties = async (participantId) => {
+        try {
+            loading.value = true;
+            const response = await $fetch(`${baseURL}/bounties/participant/${participantId}`);
+            participantBounties.value = response.data;
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching participant bounties:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
 
-			return await response.json();
-		} catch(error) {
-			console.error(`Error de fetch en ${ endpoint }:`, error);
-			throw error;
-		}
-	};
+    const createBounty = async (bountyData) => {
+    try {
+        if (!isConnected.value) {
+            throw new Error('Wallet not connected');
+        }
 
-	const createBounty = async (bountyData) => {
-		try {
-			return await fetchData('/bounties', {
-				method: 'POST',
-				body: JSON.stringify(bountyData),
-			});
-		} catch(error) {
-			throw error;
-		}
-	};
+        loading.value = true;
+
+        const response = await $fetch(`${baseURL}/bounties`, {
+            method: 'POST',
+            body: {
+                sender: account.value.accountId,
+                receiver: config.public.idContract,
+                prizes: bountyData.prizes
+            }
+        });
+
+        const transaction = response.data;
+        console.log("CreateBounty Transaction object: ", transaction);
+
+        // Asegúrate de que las acciones están en el formato correcto
+        const formattedActions = transaction.actions.map(action => ({
+            type: 'FunctionCall',
+            params: {
+                methodName: action.params.methodName,
+                args: action.params.args,
+                gas: action.params.gas,
+                deposit: action.params.deposit
+            }
+        }));
+
+        const transactionResult = await wallet.value.signAndSendTransaction({
+            receiverId: transaction.receiverId,
+            actions: formattedActions
+        });
+
+        return transactionResult;
+    } catch (error) {
+        console.error('Error creating bounty:', error);
+        throw error;
+    } finally {
+        loading.value = false;
+    }
+};
+
+    const participateInBounty = async (bountyId) => {
+        try {
+            if (!isConnected.value) {
+                throw new Error('Wallet not connected');
+            }
+
+            loading.value = true;
+
+            const response = await $fetch(`${baseURL}/bounties/${bountyId}/participate`, {
+                method: 'POST',
+                body: {
+                    sender: account.value.accountId,
+                    receiver: config.public.idContract,
+                    bountyId: parseInt(bountyId)
+                }
+            });
+
+            const transaction = response.data;
+
+            const transactionResult = await wallet.value.signAndSendTransaction({
+                receiverId: transaction.receiverId,
+                actions: transaction.actions
+            });
+
+            return transactionResult;
+        } catch (error) {
+            console.error('Error participating in bounty:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const finalizeBounty = async (bountyId, winners) => {
+        try {
+            if (!isConnected.value) {
+                throw new Error('Wallet not connected');
+            }
+
+            loading.value = true;
+
+            const response = await $fetch(`${baseURL}/bounties/${bountyId}/finalize`, {
+                method: 'POST',
+                body: {
+                    sender: account.value.accountId,
+                    receiver: config.public.idContract,
+                    bountyId: parseInt(bountyId),
+                    winners
+                }
+            });
+
+            const transaction = response.data;
+
+            const transactionResult = await wallet.value.signAndSendTransaction({
+                receiverId: transaction.receiverId,
+                actions: transaction.actions
+            });
+
+            return transactionResult;
+        } catch (error) {
+            console.error('Error finalizing bounty:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
 
 	return {
-		selector,
-		modal,
-		wallet,
-		account,
-		isConnected,
-		initialize,
-		connectWallet,
-		disconnectWallet,
-		signIn,
-		signOut,
-		fetchData,
-		createBounty,
+        // Estado del wallet
+        selector,
+        modal,
+        wallet,
+        account,
+        isConnected,
+
+        // Estado de bounties
+        bounties,
+        currentBounty,
+        creatorBounties,
+        participantBounties,
+        loading,
+        error,
+        activeBounties,
+
+        // Funciones del wallet
+        initialize,
+        connectWallet,
+        disconnectWallet,
+
+        // Funciones de bounties
+        fetchAllBounties,
+        fetchBounty,
+        fetchCreatorBounties,
+        fetchParticipantBounties,
+        createBounty,
+        participateInBounty,
+        finalizeBounty,
 	};
 });

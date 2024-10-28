@@ -23,7 +23,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             baseURL: process.env.BASE_URL || 'http://localhost:1337',
-            appURL: process.env.APP_URL || 'http://localhost:3000'
+            appURL: process.env.APP_URL || 'http://localhost:3000',
+            idContract: process.env.CONTRACT_ID || 'quantum-coders.testnet',
         },
     },
     vite: {
