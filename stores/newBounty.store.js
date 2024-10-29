@@ -10,6 +10,7 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 		placePhotos: [],
 		selectedDate: null,
 		tripType: '',
+		selectedTags: [],
 	});
 
 	const tags = ref([]);
@@ -24,10 +25,25 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 		}
 	};
 
+	const toggleTag = (tag) => {
+		const index = bounty.value.selectedTags.indexOf(tag);
+		if(index > -1) {
+			bounty.value.selectedTags.splice(index, 1);
+		} else {
+			bounty.value.selectedTags.push(tag);
+		}
+	};
+
+	const isActiveTag = (tag) => {
+		return bounty.value.selectedTags.includes(tag);
+	}
+
 	return {
 		tags,
 		bounty,
 		step,
-		startBounty
+		startBounty,
+		toggleTag,
+		isActiveTag,
 	};
 });
