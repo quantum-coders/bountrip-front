@@ -4,7 +4,8 @@
 	<div class="container py-5">
 		<!-- Wallet Component -->
 		<div class="p-5 flex d-flex gap-2">
-			 <div @click="showNotifications = true" class="btn btn-primary">Show Notifications</div>
+			<div @click="showNotifications = true" class="btn btn-primary">Show Notifications</div>
+				<div @click="walletStore.fetchInteractions()" class="btn btn-primary">Refresh Notifications</div>
 			<Wallet/>
 		</div>
 		<div v-if="walletStore.isConnected" class="row g-4">
@@ -248,6 +249,7 @@
 				loadAllBounties(),
 				loadCreatorBounties(),
 				loadParticipantBounties(),
+				walletStore.fetchInteractions()
 			])
 		}
 	})

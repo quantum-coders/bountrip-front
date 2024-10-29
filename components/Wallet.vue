@@ -14,7 +14,7 @@
 					<span class="icon">
 						<icon name="simple-icons:near" />
 					</span>
-					2,500 NEAR
+					{{accountBalance}} NEAR
 				</div>
 				<ul>
 					<li><a href="#">User Dashboard</a></li>
@@ -52,7 +52,7 @@
 	// Computed properties to reactively track connection status and account ID
 	const isConnected = computed(() => walletStore.isConnected);
 	const accountId = computed(() => walletStore.account?.accountId || '');
-
+	const accountBalance = computed(() => walletStore.accountBalance || '');
 	// Handle button click for connecting or disconnecting the wallet
 	const handleClick = () => {
 		if(!isConnected.value) {
