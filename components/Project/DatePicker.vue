@@ -511,6 +511,8 @@
 						}
 					}
 				}
+
+				this.moveNextMonth();
 			},
 			onSelectDate(dt) {
 				if(dt.isDisabled) {

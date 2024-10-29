@@ -12,6 +12,8 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 		tripType: '',
 	});
 
+	const tags = ref([]);
+
 	const step = ref(1);
 
 	const startBounty = (callback) => {
@@ -23,6 +25,7 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 	};
 
 	return {
+		tags,
 		bounty,
 		step,
 		startBounty

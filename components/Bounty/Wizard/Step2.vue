@@ -3,13 +3,19 @@
 		<h2>When are you going?</h2>
 
 		<div class="date-picker-wrapper">
-			<project-date-picker v-model="newBounty.bounty.selectedDate" btnCancelClass="d-none" />
+			<project-date-picker v-model="newBounty.bounty.selectedDate" :disabledFromTo="disabledFromTo" btnCancelClass="d-none" />
 		</div>
 	</div>
 </template>
 
 <script setup>
 	const newBounty = useNewBountyStore();
+
+	const disabledFromTo = {
+		// from oldest date to today
+		from: new Date(new Date().setFullYear(new Date().getFullYear() - 100)),
+		to: new Date()
+	};
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->

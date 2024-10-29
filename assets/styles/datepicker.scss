@@ -131,7 +131,7 @@
 					cursor: pointer;
 				}
 
-				&:not(.blank-day):not(.date-highlighted) {
+				&:not(.blank-day):not(.date-highlighted):not(.date-disabled) {
 					&:hover:after {
 						content: '';
 						position: absolute;
@@ -181,8 +181,8 @@
 				}
 
 				&.date-disabled {
-					background: #7A7575;
-					color: #A19C9CF0;
+					background: white;
+					color: #CCC;
 				}
 
 				&.date-today {

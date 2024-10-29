@@ -1,27 +1,29 @@
 <template>
-	<pre>{{ tags }}</pre>
+	<pre>{{ newBounty.tags }}</pre>
 </template>
 
 <script setup>
 
-	const tags = ref([]);
+	const newBounty = useNewBountyStore();
 
 	const getTags = async () => {
 		const { error, data } = await useBaseFetch('/ai/tags', {
 			method: 'POST',
-			body: JSON.stringify({ input: "I am planning to visit Paris, what are some popular attractions?" })
+			body: JSON.stringify({ input: 'I am planning to visit Paris, what are some popular attractions?' }),
 		});
 
-		if (error.value) {
+		if(error.value) {
 			console.error(error);
 			return;
 		}
 
-		tags.value = data.value.data;
-	}
+		newBounty.tags = data.value.data.tags;
+	};
 
 	onMounted(() => {
-		getTags();
+		if(!newBounty.tags.length) {
+			getTags();
+		}
 	});
 </script>
 
