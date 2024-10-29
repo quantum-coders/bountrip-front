@@ -5,11 +5,13 @@
 				Let the crowd find<br>
 				<small>the best plan for your next trip</small>
 			</h2>
-
-			<!-- input with placeholder "Where do you want to go?" -->
 			<div class="search">
-				<project-places-search />
-				<button class="btn btn-primary">Start Bounty</button>
+				<project-places-search
+					v-model="newBounty.bounty.placeName"
+					@place-changed="newBounty.bounty.place = $event"
+					@place-photos="newBounty.bounty.placePhotos = $event"
+				/>
+				<button class="btn btn-primary" @click.prevent="newBounty.startBounty(goToBounty)">Start Bounty</button>
 			</div>
 		</div>
 
@@ -33,14 +35,11 @@
 </template>
 
 <script setup>
+	const newBounty = useNewBountyStore();
 
-	const autocomplete = ref(null);
-
-	onMounted(() => {
-		autocomplete.value = new google.maps.places.Autocomplete(
-			document.getElementById('places')
-		);
-	})
+	const goToBounty = () => {
+		useRouter().push('/new');
+	};
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->

@@ -86,7 +86,7 @@
 			</div>
 		</div>
 		<div :class="calendarFooterClass">
-			<div class="calendar-actions">
+			<div class="calendar-actions d-flex justify-content-end">
 				<button
 					class="btn btn-cancel"
 					:class="btnCancelClass"
@@ -95,7 +95,7 @@
 					{{ btnCancelText || 'Cancel' }}
 				</button>
 				<button
-					class="btn btn-clear"
+					class="btn btn-primary btn-clear"
 					:class="btnClearClass"
 					@click="clickClear"
 				>
@@ -255,7 +255,7 @@
 				) {
 					return this.givenDays;
 				}
-				return [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ];
+				return [ 'M', 'T', 'W', 'T', 'F', 'S', 'S' ];
 			},
 			totalCalendarRows() {
 				return Math.ceil(this.dates.length / 7);
