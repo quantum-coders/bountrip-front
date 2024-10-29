@@ -13,6 +13,14 @@ export default defineNuxtConfig({
 	plugins: [
 		'~/plugins/polyfill-global.client.js',
 	],
+	app: {
+		head: {
+			title: 'Bountrip',
+			script: [ {
+				src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBMC69Jq8PSg-mtJFyhheWpcIrd_iG0ehU&libraries=places'
+			} ]
+		},
+	},
 	imports: {
 		dirs: [
 			'stores',

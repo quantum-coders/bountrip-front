@@ -7,8 +7,8 @@
 			</h2>
 
 			<!-- input with placeholder "Where do you want to go?" -->
-			<div class="search" style="max-width: 500px;">
-				<input type="text" placeholder="Where do you want to go?">
+			<div class="search">
+				<project-places-search />
 				<button class="btn btn-primary">Start Bounty</button>
 			</div>
 		</div>
@@ -33,6 +33,14 @@
 </template>
 
 <script setup>
+
+	const autocomplete = ref(null);
+
+	onMounted(() => {
+		autocomplete.value = new google.maps.places.Autocomplete(
+			document.getElementById('places')
+		);
+	})
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
@@ -95,6 +103,7 @@
 			gap: 1rem
 			padding: 1rem
 			border-radius: 1rem
+			max-width: 600px
 
 			input
 				flex-grow: 1
