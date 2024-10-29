@@ -5,9 +5,30 @@
 		<!-- Wallet Component -->
 		<div class="p-5 flex d-flex gap-2">
 			<div @click="showNotifications = true" class="btn btn-primary">Show Notifications</div>
-				<div @click="walletStore.fetchInteractions()" class="btn btn-primary">Refresh Notifications</div>
+			<div @click="walletStore.fetchInteractions()" class="btn btn-primary">Refresh Notifications</div>
+			<div @click="showNotificationsCard = !showNotificationsCard" class="btn btn-primary">Toggle Recent Notifications</div>
 			<Wallet/>
 		</div>
+		<div v-if="showNotificationsCard" class="flex pb-2">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="card-title">Notifications</h5>
+						<button @click="closeNotificationCard" class="btn-close"></button>
+					</div>
+					<div class="card-body">
+						<div v-for="notification in notifications" :key="notification.transactionHash">
+							<div class="alert" :class="'alert-' + notification.type">
+								{{ notification.message }}
+								<a v-if="notification.transactionHash" :href="notification.transactionLink"
+								   target="_blank">
+									{{ notification.transactionHash }}
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		<div v-if="walletStore.isConnected" class="row g-4">
 			<!-- Create Bounty Section -->
 			<CreateBounty @bountyCreated="onBountyCreated"/>
@@ -105,12 +126,13 @@
 			@close="feedback.message = ''"
 		/>
 
+		<div v-if="showNotificationsCard" class="notifications">
+
+		</div>
+
 	</div>
-	<!-- Controla la visibilidad del drawer mediante la propiedad showNotifications -->
 	<SidebarNotifications
-		:show="showNotifications"
-		:notifications="notifications"
-		@close="showNotifications = false"
+		v-if="showNotifications"
 	/>
 
 
@@ -134,6 +156,7 @@
 	const selectedBountyParticipants = ref([]);
 	const notifications = ref([]);
 	const showNotifications = ref(false);
+	const showNotificationsCard = ref(false);
 
 	const showParticipateModal = ref(false);
 	const showFinalizeModal = ref(false);
@@ -144,7 +167,11 @@
 		{id: 'participating', name: 'My Participations'},
 	];
 
+	const closeNotificationCard = () => {
+		showNotificationsCard.value = false;
+	};
 	const showFeedback = (message, type = 'success', hash = '') => {
+		showNotificationsCard.value = true;
 		feedback.value = {message, type};
 		transactionHash.value = hash;
 		transactionLink.value = hash
@@ -160,7 +187,7 @@
 		setTimeout(() => {
 			feedback.value.message = '';
 			transactionLink.value = '';
-		}, 5000);
+		}, 10000);
 	};
 
 	const handleParticipate = (bountyId) => {

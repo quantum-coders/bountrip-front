@@ -45,7 +45,7 @@
 				idNear: walletStore.account?.accountId,
 			}),
 		});
-
+		console.info("Connect respondes", connectRes.data.value.data);
 		loading.value = false;
 	});
 

@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-body">
         <h3 class="card-title mb-4">Create New Bounty</h3>
-        <form @submit.prevent="handleCreateBounty">
+        <form @submit.prevent="showConfirmationModal">
           <div class="mb-3">
             <label class="form-label">Prizes (NEAR)</label>
             <div
@@ -40,6 +40,25 @@
       </div>
     </div>
   </div>
+
+  <!-- Confirmation Modal -->
+  <div v-if="showModal" class="modal" tabindex="-1" style="display: block;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Bounty Creation</h5>
+          <button type="button" class="btn-close" @click="hideConfirmationModal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to create this bounty?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="hideConfirmationModal">Cancel</button>
+          <button type="button" class="btn btn-success" @click="confirmCreateBounty">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -47,6 +66,7 @@ const emit = defineEmits(['bountyCreated'])
 const walletStore = useWalletStore()
 const bountyData = ref({ prizes: [''] })
 const isLoading = ref(false)
+const showModal = ref(false)
 
 const addPrize = () => bountyData.value.prizes.push('')
 const removePrize = (index) => {
@@ -55,7 +75,15 @@ const removePrize = (index) => {
   }
 }
 
-const handleCreateBounty = async () => {
+const showConfirmationModal = () => {
+  showModal.value = true
+}
+
+const hideConfirmationModal = () => {
+  showModal.value = false
+}
+
+const confirmCreateBounty = async () => {
   try {
     isLoading.value = true
     const prizes = bountyData.value.prizes.map((prize) => prize.trim())
@@ -70,6 +98,7 @@ const handleCreateBounty = async () => {
     alert(error.message)
   } finally {
     isLoading.value = false
+    hideConfirmationModal()
   }
 }
 </script>
