@@ -211,7 +211,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			if (!isConnected.value) {
 				throw new Error('Wallet not connected');
 			}
-
+			let createdBounty = null;
 			loading.value = true;
 
 			const response = await $fetch(`${baseURL}/bounties`, {
@@ -231,8 +231,39 @@ export const useWalletStore = defineStore('wallet', () => {
 				receiverId: transaction.receiverId,
 				actions: transaction.actions,
 			});
+			console.info('createBounty transactionResult: ', transactionResult);
+			const logMessage = transactionResult.receipts_outcome[0].outcome.logs.find(log => log.includes('Bounty'));
+			const bountyIdMatch = logMessage.match(/Bounty (\d+) created/);
+			const bountyId = bountyIdMatch ? bountyIdMatch[1] : null;
 
-			return transactionResult;
+			try {
+				const payload = {
+					idOnChain: bountyId,
+					idNear: account.value.accountId,
+					slug: `bounty-${bountyId}`,
+					title: bountyData.title || '',
+					content: bountyData.content || '',
+					status: 'Active',
+					type: 'Bounty',
+					metas: bountyData.metas || {},
+				};
+				const response = await  $fetch(`${baseURL}/bounties/store`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: payload,
+				});
+
+				console.info('createBounty response: ', response);
+				const parsedResult = response.data
+				console.info('createBounty parsedResult: ', parsedResult);
+				createdBounty = parsedResult.data.data
+			} catch (e) {
+				console.error('Error creating bounty:', e);
+			}
+
+			return {transactionResult, createdBounty};
 		} catch (error) {
 			console.error('Error creating bounty:', error);
 			throw error;
@@ -365,6 +396,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		}
 	};
 
+
 	return {
 		// Estado del wallet
 		selector,
@@ -383,7 +415,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		loading,
 		error,
 		activeBounties,
-
 		// Funciones del wallet
 		initialize,
 		connectWallet,
