@@ -206,6 +206,30 @@ export const useWalletStore = defineStore('wallet', () => {
 		}
 	};
 
+	const upsertBounty = async (bountyData) => {
+		try {
+			const payload = {
+				idNear: account.value.accountId,
+				slug: bountyData.slug,
+				title: bountyData.title || '',
+				content: bountyData.content || '',
+				status: bountyData.status || 'Active',
+				type: bountyData.type || 'Bounty',
+				metas: bountyData.metas || {},
+				idBounty: bountyData.idBounty || null,
+			};
+			const res = await $fetch(`${baseURL}/bounties/store`, {
+				method: 'POST',
+				body: payload
+			});
+
+			return res.data;
+
+		} catch (error) {
+			console.error('Error upserting bounty:', error);
+			throw error;
+		}
+	}
 	const createBounty = async (bountyData) => {
 		try {
 			if (!isConnected.value) {
@@ -247,7 +271,7 @@ export const useWalletStore = defineStore('wallet', () => {
 					type: 'Bounty',
 					metas: bountyData.metas || {},
 				};
-				const response = await  $fetch(`${baseURL}/bounties/store`, {
+				const response = await $fetch(`${baseURL}/bounties/store`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -419,7 +443,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		initialize,
 		connectWallet,
 		disconnectWallet,
-
 		// Funciones de bounties
 		fetchAllBounties,
 		fetchBounty,
@@ -429,5 +452,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		participateInBounty,
 		finalizeBounty,
 		fetchInteractions,
+		upsertBounty,
 	};
 });
