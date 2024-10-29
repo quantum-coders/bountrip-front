@@ -1,9 +1,12 @@
 <template>
+
+
 	<div class="container py-5">
 		<!-- Wallet Component -->
-		<Wallet/>
-
-		<!-- Main Bounty Management Content -->
+		<div class="p-5 flex d-flex gap-2">
+			 <div @click="showNotifications = true" class="btn btn-primary">Show Notifications</div>
+			<Wallet/>
+		</div>
 		<div v-if="walletStore.isConnected" class="row g-4">
 			<!-- Create Bounty Section -->
 			<CreateBounty @bountyCreated="onBountyCreated"/>
@@ -100,7 +103,16 @@
 			:transactionHash="transactionHash"
 			@close="feedback.message = ''"
 		/>
+
 	</div>
+	<!-- Controla la visibilidad del drawer mediante la propiedad showNotifications -->
+	<SidebarNotifications
+		:show="showNotifications"
+		:notifications="notifications"
+		@close="showNotifications = false"
+	/>
+
+
 </template>
 
 <script setup>
@@ -119,6 +131,8 @@
 	const transactionLink = ref('');
 	const selectedBountyId = ref(null);
 	const selectedBountyParticipants = ref([]);
+	const notifications = ref([]);
+	const showNotifications = ref(false);
 
 	const showParticipateModal = ref(false);
 	const showFinalizeModal = ref(false);
@@ -135,6 +149,13 @@
 		transactionLink.value = hash
 			? `https://explorer.testnet.near.org/transactions/${hash}`
 			: '';
+		notifications.value.push({
+			message,
+			type,
+			transactionHash: hash,
+			transactionLink,
+		});
+
 		setTimeout(() => {
 			feedback.value.message = '';
 			transactionLink.value = '';
