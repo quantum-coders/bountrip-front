@@ -23,6 +23,7 @@ export const useWalletStore = defineStore('wallet', () => {
 	const wallet = ref(null);
 	const account = ref(null);
 	const isConnected = ref(false);
+	const interactionsData = ref([]);
 
 	// Nuevo estado para bounties
 	const bounties = ref([]);
@@ -274,6 +275,34 @@ export const useWalletStore = defineStore('wallet', () => {
 		}
 	};
 
+	const fetchInteractions = async () => {
+		try {
+			loading.value = true;
+
+			// Llamada al endpoint de tu backend para obtener las interacciones
+			const response = await $fetch(`${baseURL}/bounties/interactions`, {
+				method: 'GET',
+				params: {
+					accountId: account.value?.accountId,
+					contractId: 'quantum-coders.testnet',
+				},
+			});
+
+			const interactions = response.data;
+
+			interactionsData.value = interactions;
+			// Puedes almacenar las interacciones en una variable de estado si lo deseas
+			// interactionsData.value = interactions;
+
+			return interactions;
+		} catch (error) {
+			console.error('Error al obtener las interacciones:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
+
 
 	const finalizeBounty = async (bountyId, winners) => {
 		try {
@@ -316,7 +345,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		wallet,
 		account,
 		isConnected,
-
+		interactionsData,
 		// Estado de bounties
 		bounties,
 		currentBounty,
@@ -339,5 +368,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		createBounty,
 		participateInBounty,
 		finalizeBounty,
+		fetchInteractions,
 	};
 });
