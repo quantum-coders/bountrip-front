@@ -6,6 +6,12 @@
 		<div class="user-menu" v-else>
 			<span class="login-button">{{ accountId }}</span>
 			<nav class="user-nav">
+				<div class="balance">
+					<span class="icon">
+						<icon name="simple-icons:near" />
+					</span>
+					2,500 NEAR
+				</div>
 				<ul>
 					<li><a href="#">User Dashboard</a></li>
 					<li><a href="#" @click.prevent="handleClick">Logout</a></li>
@@ -62,6 +68,28 @@
 		&:hover
 			.user-nav
 				display: block
+
+		.balance
+			padding: 0 1rem 0.5rem
+			display: flex
+			align-items: center
+			color: var(--bs-body-color)
+			gap: 0.5rem
+			border-bottom: 1px solid var(--bs-border-color)
+
+			.icon
+				background: var(--brand2)
+				color: white
+				width: 1.2em
+				height: 1.2em
+				border-radius: 50%
+				display: flex
+				align-items: center
+				justify-content: center
+
+				.iconify
+					font-size: 0.6em
+					top: 0.015em
 
 		.user-nav
 			position: absolute
