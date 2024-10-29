@@ -9,7 +9,7 @@
 	const getTags = async () => {
 		const { error, data } = await useBaseFetch('/ai/tags', {
 			method: 'POST',
-			body: JSON.stringify({ input: 'I am planning to visit Paris, what are some popular attractions?' }),
+			body: JSON.stringify({ input: `I am planning to visit ${useNewBountyStore().bounty?.placeName },from ${useNewBountyStore().bounty?.selectedDate[0]._d} to ${useNewBountyStore().bounty?.selectedDate[1]._d}, what are some popular attractions?` }),
 		});
 
 		if(error.value) {
