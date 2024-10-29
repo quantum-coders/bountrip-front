@@ -11,6 +11,7 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 		selectedDate: null,
 		tripType: '',
 		selectedTags: [],
+		prizes: []
 	});
 
 	const tags = ref([]);
