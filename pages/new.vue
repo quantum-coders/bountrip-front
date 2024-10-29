@@ -14,5 +14,5 @@
 <!--suppress SassScssResolvedByNameOnly -->
 <style lang="sass" scoped>
 	.new-wrapper
-		padding-top: 100px
+		padding-top: 64px
 </style>

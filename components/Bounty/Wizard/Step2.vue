@@ -2,7 +2,7 @@
 	<div class="step step2" v-if="newBounty.step === 2">
 		<h2>When are you going?</h2>
 
-		<div class="date-picker-wrapper mb-5">
+		<div class="date-picker-wrapper">
 			<project-date-picker v-model="newBounty.bounty.selectedDate" btnCancelClass="d-none" />
 		</div>
 	</div>

@@ -2,12 +2,14 @@
 	<div class="step step1" v-if="newBounty.step === 1">
 		<h2>Where do you plan to go?</h2>
 
-		<div class="search mb-5">
-			<project-places-search
-				v-model="newBounty.bounty.placeName"
-				@place-changed="newBounty.bounty.place = $event"
-				@place-photos="newBounty.bounty.placePhotos = $event"
-			/>
+		<div class="search-wrapper">
+			<div class="search">
+				<project-places-search
+					v-model="newBounty.bounty.placeName"
+					@place-changed="newBounty.bounty.place = $event"
+					@place-photos="newBounty.bounty.placePhotos = $event"
+				/>
+			</div>
 		</div>
 	</div>
 </template>

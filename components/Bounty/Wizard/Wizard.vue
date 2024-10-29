@@ -23,8 +23,6 @@
 			</button>
 		</div>
 	</div>
-
-	<pre>{{ newBounty.bounty }}</pre>
 </template>
 
 <script setup>
@@ -41,12 +39,16 @@
 
 <!--suppress SassScssResolvedByNameOnly -->
 <style lang="sass" scoped>
-	.step
-		height: 500px
+	.wizard-wrapper
+		height: calc(100dvh - 64px)
 
 	.controls
 		display: flex
 		justify-content: space-between
 		width: 800px
 		margin: 0 auto
+		padding: 1rem
+		background: white
+		box-shadow: 0 0 1rem rgba(black, 0.1)
+		border-radius: 100px
 </style>

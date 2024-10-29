@@ -1,7 +1,7 @@
 <template>
 	<div class="step step3" v-if="newBounty.step === 3">
 		<h2>What kind of trip are you planning?</h2>
-		<div class="trip-types d-flex flex-column justify-content-center flex-grow-1">
+		<div class="trip-types">
 			<div class="row">
 				<div class="col-3" v-for="t in types">
 					<article
