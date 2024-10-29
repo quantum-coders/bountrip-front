@@ -1,11 +1,15 @@
 <template>
 	<div class="login">
 		<button class="login-button" v-if="!isConnected" @click="handleClick">
+			<platform-loading :active="loading" :width="'20px'" />
 			<span>Connect Wallet</span>
 		</button>
 		<div class="user-menu" v-else>
-			<span class="login-button">{{ accountId }}</span>
-			<nav class="user-nav">
+			<span class="login-button">
+				<platform-loading :active="loading" :width="'20px'" />
+				{{ accountId }}
+			</span>
+			<nav class="user-nav" v-if="!loading">
 				<div class="balance">
 					<span class="icon">
 						<icon name="simple-icons:near" />
@@ -23,11 +27,26 @@
 
 <script setup>
 
+	const loading = ref(false);
 	const walletStore = useWalletStore();
 
+	//console.log('Wallet', walletStore.wallet.getAccounts());
+
 	// Initialize the wallet store when the component is mounted
-	onMounted(() => {
-		walletStore.initialize();
+	onMounted(async () => {
+
+		loading.value = true;
+		await walletStore.initialize();
+		console.log('walletStore.isConnected', walletStore.isConnected);
+
+		const connectRes = await useBaseFetch('/users/connect', {
+			method: 'POST',
+			body: JSON.stringify({
+				idNear: walletStore.account?.accountId,
+			}),
+		});
+
+		loading.value = false;
 	});
 
 	// Computed properties to reactively track connection status and account ID
@@ -42,6 +61,7 @@
 			walletStore.disconnectWallet();
 		}
 	};
+
 </script>
 
 <style lang="sass" scoped>
@@ -59,6 +79,7 @@
 		align-items: center
 		justify-content: center
 		z-index: 1
+		overflow: hidden
 
 		&:hover
 			background: var(--brand1)
