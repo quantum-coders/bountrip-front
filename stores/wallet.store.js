@@ -15,27 +15,27 @@ import {setupModal} from '@near-wallet-selector/modal-ui';
 
 export const useWalletStore = defineStore('wallet', () => {
 	const config = useRuntimeConfig();
-    const baseURL = config.public.baseURL;
+	const baseURL = config.public.baseURL;
 
-    // Estado original del wallet
-    const selector = ref(null);
-    const modal = ref(null);
-    const wallet = ref(null);
-    const account = ref(null);
-    const isConnected = ref(false);
+	// Estado original del wallet
+	const selector = ref(null);
+	const modal = ref(null);
+	const wallet = ref(null);
+	const account = ref(null);
+	const isConnected = ref(false);
 
-    // Nuevo estado para bounties
-    const bounties = ref([]);
-    const currentBounty = ref(null);
-    const creatorBounties = ref([]);
-    const participantBounties = ref([]);
-    const loading = ref(false);
-    const error = ref(null);
+	// Nuevo estado para bounties
+	const bounties = ref([]);
+	const currentBounty = ref(null);
+	const creatorBounties = ref([]);
+	const participantBounties = ref([]);
+	const loading = ref(false);
+	const error = ref(null);
 
-    // Getters
-    const activeBounties = computed(() =>
-        bounties.value.filter(bounty => bounty.isActive)
-    );
+	// Getters
+	const activeBounties = computed(() =>
+		bounties.value.filter(bounty => bounty.isActive)
+	);
 
 	const connectionConfig = {
 		networkId: 'testnet',
@@ -148,202 +148,196 @@ export const useWalletStore = defineStore('wallet', () => {
 	};
 
 // Funciones de bounties
-    const fetchAllBounties = async () => {
-        try {
-            loading.value = true;
-            const response = await $fetch(`${baseURL}/bounties`);
-            bounties.value = response.data;
-        } catch (error) {
-            console.error('Error fetching bounties:', error);
-            throw error;
-        } finally {
-            loading.value = false;
-        }
-    };
+	const fetchAllBounties = async () => {
+		try {
+			loading.value = true;
+			const response = await $fetch(`${baseURL}/bounties`);
+			bounties.value = response.data;
+		} catch (error) {
+			console.error('Error fetching bounties:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
-    const fetchBounty = async (bountyId) => {
-        try {
-            loading.value = true;
-            const response = await $fetch(`${baseURL}/bounties/${bountyId}`);
-            currentBounty.value = response.data;
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching bounty:', error);
-            throw error;
-        } finally {
-            loading.value = false;
-        }
-    };
+	const fetchBounty = async (bountyId) => {
+		try {
+			loading.value = true;
+			const response = await $fetch(`${baseURL}/bounties/${bountyId}`);
+			currentBounty.value = response.data;
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching bounty:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
-    const fetchCreatorBounties = async (creatorId) => {
-        try {
-            loading.value = true;
-            const response = await $fetch(`${baseURL}/bounties/creator/${creatorId}`);
-            creatorBounties.value = response.data;
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching creator bounties:', error);
-            throw error;
-        } finally {
-            loading.value = false;
-        }
-    };
+	const fetchCreatorBounties = async (creatorId) => {
+		try {
+			loading.value = true;
+			const response = await $fetch(`${baseURL}/bounties/creator/${creatorId}`);
+			creatorBounties.value = response.data;
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching creator bounties:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
-    const fetchParticipantBounties = async (participantId) => {
-        try {
-            loading.value = true;
-            const response = await $fetch(`${baseURL}/bounties/participant/${participantId}`);
-            participantBounties.value = response.data;
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching participant bounties:', error);
-            throw error;
-        } finally {
-            loading.value = false;
-        }
-    };
+	const fetchParticipantBounties = async (participantId) => {
+		try {
+			loading.value = true;
+			const response = await $fetch(`${baseURL}/bounties/participant/${participantId}`);
+			participantBounties.value = response.data;
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching participant bounties:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
-    const createBounty = async (bountyData) => {
-    try {
-        if (!isConnected.value) {
-            throw new Error('Wallet not connected');
-        }
+	const createBounty = async (bountyData) => {
+		try {
+			if (!isConnected.value) {
+				throw new Error('Wallet not connected');
+			}
 
-        loading.value = true;
+			loading.value = true;
 
-        const response = await $fetch(`${baseURL}/bounties`, {
-            method: 'POST',
-            body: {
-                sender: account.value.accountId,
-                receiver: config.public.idContract,
-                prizes: bountyData.prizes
-            }
-        });
+			const response = await $fetch(`${baseURL}/bounties`, {
+				method: 'POST',
+				body: {
+					sender: account.value.accountId,
+					receiver: config.public.idContract,
+					prizes: bountyData.prizes,
+				},
+			});
 
-        const transaction = response.data;
-        console.log("CreateBounty Transaction object: ", transaction);
+			const transaction = response.data;
+			console.log("CreateBounty Transaction object: ", transaction);
 
-        // Asegúrate de que las acciones están en el formato correcto
-        const formattedActions = transaction.actions.map(action => ({
-            type: 'FunctionCall',
-            params: {
-                methodName: action.params.methodName,
-                args: action.params.args,
-                gas: action.params.gas,
-                deposit: action.params.deposit
-            }
-        }));
+			// Usar las acciones directamente
+			const transactionResult = await wallet.value.signAndSendTransaction({
+				receiverId: transaction.receiverId,
+				actions: transaction.actions,
+			});
 
-        const transactionResult = await wallet.value.signAndSendTransaction({
-            receiverId: transaction.receiverId,
-            actions: formattedActions
-        });
+			return transactionResult;
+		} catch (error) {
+			console.error('Error creating bounty:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
-        return transactionResult;
-    } catch (error) {
-        console.error('Error creating bounty:', error);
-        throw error;
-    } finally {
-        loading.value = false;
-    }
-};
 
-    const participateInBounty = async (bountyId) => {
-        try {
-            if (!isConnected.value) {
-                throw new Error('Wallet not connected');
-            }
+	const participateInBounty = async (bountyId) => {
+		try {
+			if (!isConnected.value) {
+				throw new Error('Wallet not connected');
+			}
 
-            loading.value = true;
+			loading.value = true;
 
-            const response = await $fetch(`${baseURL}/bounties/${bountyId}/participate`, {
-                method: 'POST',
-                body: {
-                    sender: account.value.accountId,
-                    receiver: config.public.idContract,
-                    bountyId: parseInt(bountyId)
-                }
-            });
+			const response = await $fetch(`${baseURL}/bounties/${bountyId}/participate`, {
+				method: 'POST',
+				body: {
+					sender: account.value.accountId,
+					receiver: config.public.idContract,
+					bountyId: parseInt(bountyId)
+				}
+			});
 
-            const transaction = response.data;
+			console.info("participateInBounty response: ", response);
+			const transaction = response.data;
 
-            const transactionResult = await wallet.value.signAndSendTransaction({
-                receiverId: transaction.receiverId,
-                actions: transaction.actions
-            });
+			// Use the actions directly
+			const transactionResult = await wallet.value.signAndSendTransaction({
+				receiverId: transaction.receiverId,
+				actions: transaction.actions
+			});
 
-            return transactionResult;
-        } catch (error) {
-            console.error('Error participating in bounty:', error);
-            throw error;
-        } finally {
-            loading.value = false;
-        }
-    };
+			return transactionResult;
+		} catch (error) {
+			console.error('Error participating in bounty:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
-    const finalizeBounty = async (bountyId, winners) => {
-        try {
-            if (!isConnected.value) {
-                throw new Error('Wallet not connected');
-            }
 
-            loading.value = true;
+	const finalizeBounty = async (bountyId, winners) => {
+		try {
+			if (!isConnected.value) {
+				throw new Error('Wallet not connected');
+			}
 
-            const response = await $fetch(`${baseURL}/bounties/${bountyId}/finalize`, {
-                method: 'POST',
-                body: {
-                    sender: account.value.accountId,
-                    receiver: config.public.idContract,
-                    bountyId: parseInt(bountyId),
-                    winners
-                }
-            });
+			loading.value = true;
 
-            const transaction = response.data;
+			const response = await $fetch(`${baseURL}/bounties/${bountyId}/finalize`, {
+				method: 'POST',
+				body: {
+					sender: account.value.accountId,
+					receiver: config.public.idContract,
+					bountyId: parseInt(bountyId),
+					winners
+				}
+			});
 
-            const transactionResult = await wallet.value.signAndSendTransaction({
-                receiverId: transaction.receiverId,
-                actions: transaction.actions
-            });
+			const transaction = response.data;
 
-            return transactionResult;
-        } catch (error) {
-            console.error('Error finalizing bounty:', error);
-            throw error;
-        } finally {
-            loading.value = false;
-        }
-    };
+			const transactionResult = await wallet.value.signAndSendTransaction({
+				receiverId: transaction.receiverId,
+				actions: transaction.actions
+			});
+
+			return transactionResult;
+		} catch (error) {
+			console.error('Error finalizing bounty:', error);
+			throw error;
+		} finally {
+			loading.value = false;
+		}
+	};
 
 	return {
-        // Estado del wallet
-        selector,
-        modal,
-        wallet,
-        account,
-        isConnected,
+		// Estado del wallet
+		selector,
+		modal,
+		wallet,
+		account,
+		isConnected,
 
-        // Estado de bounties
-        bounties,
-        currentBounty,
-        creatorBounties,
-        participantBounties,
-        loading,
-        error,
-        activeBounties,
+		// Estado de bounties
+		bounties,
+		currentBounty,
+		creatorBounties,
+		participantBounties,
+		loading,
+		error,
+		activeBounties,
 
-        // Funciones del wallet
-        initialize,
-        connectWallet,
-        disconnectWallet,
+		// Funciones del wallet
+		initialize,
+		connectWallet,
+		disconnectWallet,
 
-        // Funciones de bounties
-        fetchAllBounties,
-        fetchBounty,
-        fetchCreatorBounties,
-        fetchParticipantBounties,
-        createBounty,
-        participateInBounty,
-        finalizeBounty,
+		// Funciones de bounties
+		fetchAllBounties,
+		fetchBounty,
+		fetchCreatorBounties,
+		fetchParticipantBounties,
+		createBounty,
+		participateInBounty,
+		finalizeBounty,
 	};
 });
