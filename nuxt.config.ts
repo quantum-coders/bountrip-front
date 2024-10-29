@@ -18,7 +18,10 @@ export default defineNuxtConfig({
 			title: 'Bountrip',
 			script: [ {
 				src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBMC69Jq8PSg-mtJFyhheWpcIrd_iG0ehU&libraries=places'
-			} ]
+			} ],
+			link: [
+				{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+			],
 		},
 	},
 	imports: {
