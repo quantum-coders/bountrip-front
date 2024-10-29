@@ -1,4 +1,4 @@
 // plugins/polyfill-global.client.js
-if (typeof global === 'undefined') {
-  window.global = window;
+if(typeof global === 'undefined') {
+	window.global = window;
 }
