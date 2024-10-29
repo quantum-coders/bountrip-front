@@ -1,0 +1,123 @@
+.g-calendar {
+	.calendar-container {
+		display: flex;
+
+		.current-calendar,
+		.next-calendar {
+			flex: 1;
+		}
+
+		.current-calendar {
+			padding-right: 1rem;
+			border-right: #999999 1px solid;
+		}
+
+		.next-calendar {
+			padding-left: 1rem;
+		}
+
+		.next-icon {
+			width: 0;
+			height: 0;
+			border-top: 12px solid transparent;
+			border-bottom: 12px solid transparent;
+
+			border-left: 12px solid grey;
+		}
+
+		.prev-icon {
+			width: 0;
+			height: 0;
+			border-top: 12px solid transparent;
+			border-bottom: 12px solid transparent;
+
+			border-right: 12px solid grey;
+		}
+
+		.next-icon,
+		.prev-icon {
+			&.disabled {
+				border-right-color: #A7A4A46B;
+				border-left-color: #A7A4A46B;
+			}
+		}
+
+		// width: 50%;
+		.day-name {
+			display: flex;
+			justify-content: space-between;
+			padding-top: 2px;
+			padding-bottom: 2px;
+			border-bottom: 1px solid var(--bs-border-color);
+			margin-bottom:  1rem;
+
+			span {
+				width: 100%;
+				text-align: center;
+				font-weight: 550;
+			}
+		}
+
+		.month-name {
+			display: flex;
+			// justify-content: space-evenly;
+			padding: 1rem;
+			font-size: 22px;
+			font-weight: 480;
+
+			.prev-icon {
+				padding-left: 7px;
+				cursor: pointer;
+			}
+
+			.month-text {
+
+				font-size: 1.2rem;
+				margin: auto;
+			}
+		}
+
+		.calendar-dates .date-row {
+			display: flex;
+			// justify-content: space-between;
+
+			.blank-day,
+			.date {
+				width: 14.28%;
+				text-align: center;
+				padding: 7px;
+
+				&.date-selected-start {
+					border-top-left-radius: 8px;
+					border-bottom-left-radius: 8px;
+				}
+
+				&.date-selected-end {
+					border-top-right-radius: 8px;
+					border-bottom-right-radius: 8px;
+				}
+
+				&.date-disabled {
+					background: #7A7575;
+					color: #A19C9CF0;
+				}
+
+				&.date-today {
+					background: var(--brand2);
+					color: white;
+
+				}
+
+				&.date-highlighted {
+					background: #478F8B9C !important;
+					color: #FFFFFF;
+				}
+
+				&.date-selected {
+					background: #4FA5A1 !important;
+					color: #FFFFFF;
+				}
+			}
+		}
+	}
+}
