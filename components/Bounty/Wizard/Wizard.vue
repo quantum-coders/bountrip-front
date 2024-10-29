@@ -6,7 +6,7 @@
 				<template v-if="newBounty.bounty.placeName">Trip to {{ newBounty.bounty.placeName }}</template>
 				<template v-else>Plan your next trip</template>
 			</p>
-			<p class="text-muted">{{ newBounty.step }} of 4</p>
+			<p class="text-muted">{{ newBounty.step }} of 5</p>
 		</div>
 
 		<div class="wizard-steps mb-5">
@@ -14,6 +14,7 @@
 			<bounty-wizard-step2 />
 			<bounty-wizard-step3 />
 			<bounty-wizard-step4 />
+			<bounty-wizard-step5 />
 		</div>
 
 		<bounty-wizard-controls />

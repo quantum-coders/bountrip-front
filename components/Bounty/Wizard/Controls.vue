@@ -1,5 +1,4 @@
 <template>
-
 	<div class="controls">
 		<button
 			class="btn btn-link px-4 rounded-pill"
@@ -13,7 +12,8 @@
 			@click.prevent="nextStep"
 			:disabled="!canNextStep()"
 		>
-			Next
+			<template v-if="newBounty.step < 5">Next</template>
+			<template v-else>Finish</template>
 		</button>
 	</div>
 </template>
@@ -26,7 +26,7 @@
 	};
 
 	const canNextStep = () => {
-		if(newBounty.step === 1 && !newBounty.bounty.place) {
+		if(newBounty.step === 1 && !newBounty.bounty.place || !newBounty.bounty.title || !newBounty.bounty.description) {
 			return false;
 		}
 
@@ -36,6 +36,20 @@
 
 		if(newBounty.step === 3 && !newBounty.bounty.tripType) {
 			return false;
+		}
+
+		if(newBounty.step === 4 && !newBounty.bounty.selectedTags.length) {
+			return false;
+		}
+
+		if(newBounty.step === 5) {
+
+			// check that each prize is a valid number
+			for(const prize of newBounty.bounty.prizes) {
+				if(isNaN(prize) || !prize) return false;
+			}
+
+			return true;
 		}
 
 		return true;
