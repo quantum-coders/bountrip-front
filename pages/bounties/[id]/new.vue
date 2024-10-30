@@ -1,13 +1,51 @@
 <template>
-	<div class="new-plan-wrapper d-flex flex-grow-1">
+	<div class="new-plan-wrapper d-flex flex-grow-1 flex-column">
+
+		<div class="bounty" v-if="bounty">
+			<div class="container">
+				<div class="d-flex align-items-end justify-content-between">
+
+					<div class="bounty-info">
+
+						<h3 class="mb-0">{{ bounty.title }}</h3>
+						<p>{{ bounty.metas.description }}</p>
+
+						<bounty-meta-info
+							:metas="bounty.metas"
+							:created="bounty.created"
+							:participants="bounty.participants || []"
+							class="mb-0"
+						/>
+					</div>
+
+					<button
+						class="btn btn-primary"
+						@click="createPlan"
+						:disabled="loading"
+					>
+						<span v-if="loading">Submitting..</span>
+						<span v-else>Submit Plan</span>
+					</button>
+					<div v-if="showTransaction" class="alert alert-success mt-3">
+						Plan submitted successfully! <a
+						:href="'https://explorer.testnet.near.org/transactions/' + txHash"
+						target="_blank"
+					>View Transaction</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<div class="container d-flex flex-grow-1 flex-column">
-
 			<!-- title for the plan -->
 			<div class="form-group mb-3">
 				<label class="form-label" for="title">Title for your plan</label>
-				<input id="title" class="form-control" type="text" placeholder="Enter the title of your plan"
-					   v-model="planData.title"
+				<input
+					id="title"
+					class="form-control form-control-lg"
+					type="text"
+					placeholder="Enter the title of your plan"
+					v-model="planData.title"
 				/>
 			</div>
 
@@ -22,14 +60,14 @@
 							placeholder="Search for a place"
 							@place-changed="addPlace"
 						/>
-						<icon name="material-symbols:search-rounded"/>
+						<icon name="material-symbols:search-rounded" />
 					</div>
 
 					<template v-for="p in places">
 						<article class="place" @click="focusPlace(p)">
 
 							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt="">
-							<div v-else class="place-thumb"/>
+							<div v-else class="place-thumb" />
 
 							<div class="place-info">
 								<div class="place-category">{{ changeCase.capitalCase(p.types[0]) }}</div>
@@ -37,7 +75,7 @@
 								<h4 class="place-title mb-0">{{ p.name }}</h4>
 								<p class="d-flex align-items-center gap-2 mb-0">
 									<span v-if="p.rating">
-										<plan-rating :rating="p.rating"/>
+										<plan-rating :rating="p.rating" />
 									</span>
 									<span class="reviews" v-if="p.reviews">
 										{{ p.reviews.length }} review{{ p.reviews.length > 1 ? 's' : '' }}
@@ -59,19 +97,7 @@
 							</div>
 						</article>
 					</template>
-						<button class="btn btn-primary"
-								@click="createPlan"
-								:disabled="loading"
-						>
-							<span v-if="loading">Submitting..</span>
-							<span v-else>Submit Plan</span>
-						</button>
-						<div v-if="showTransaction" class="alert alert-success mt-3">
-							Plan submitted successfully! <a :href="'https://explorer.testnet.near.org/transactions/' + txHash"
-														   target="_blank">View Transaction</a>
-						</div>
 				</div>
-
 
 				<aside class="plan-sidebar">
 
@@ -87,7 +113,7 @@
 						></textarea>
 					</div>
 
-					<div class="map" id="map"/>
+					<div class="map" id="map" />
 
 				</aside>
 			</div>
@@ -97,9 +123,9 @@
 
 <script setup>
 	import * as changeCase from 'change-case';
-	import {useNewPlanStore} from "~/stores/newPlan.store.js";
+	import { useNewPlanStore } from '~/stores/newPlan.store.js';
 
-	definePageMeta({layout: 'bountrip'});
+	definePageMeta({ layout: 'bountrip' });
 
 	const places = ref([]);
 	const loading = ref(false);
@@ -111,7 +137,7 @@
 	const planData = ref({
 		title: '',
 		description: '',
-		places: []
+		places: [],
 	});
 	const addPlace = (place) => {
 
@@ -130,8 +156,8 @@
 		// Add an info window to the marker
 		place.infoWindow = new google.maps.InfoWindow({
 			content: `
-				<h4>${place.name}</h4>
-				<p>${place.formatted_address}</p>
+				<h4>${ place.name }</h4>
+				<p>${ place.formatted_address }</p>
 			`,
 		});
 
@@ -140,7 +166,7 @@
 
 			// close all the other info windows
 			places.value.forEach((p) => {
-				if (p.infoWindow && p.infoWindow !== place.infoWindow) {
+				if(p.infoWindow && p.infoWindow !== place.infoWindow) {
 					p.infoWindow.close();
 				}
 			});
@@ -156,11 +182,10 @@
 			placeReviews: place.reviews,
 			placePhotos: place.photos,
 			placePriceLevel: place.price_level,
-			placeComment: ''
+			placeComment: '',
 		});
 
 		boundMap();
-
 
 	};
 
@@ -169,17 +194,17 @@
 			...useNewPlanStore().plan,
 			title: newValue.title,
 			description: newValue.description,
-			places: newValue.places
+			places: newValue.places,
 		};
 
-	}, {deep: true});
+	}, { deep: true });
 
 	const focusPlace = (place) => {
 		place.infoWindow.open(map.value, place.marker);
 
 		//close all the other info windows
 		places.value.forEach((p) => {
-			if (p.infoWindow && p.infoWindow !== place.infoWindow) {
+			if(p.infoWindow && p.infoWindow !== place.infoWindow) {
 				p.infoWindow.close();
 			}
 		});
@@ -220,11 +245,11 @@
 			loading.value = true;
 			console.log('Creating a new plan');
 			const tx = await useNewPlanStore().createPlan();
-			txHash.value = tx.transaction.hash
+			txHash.value = tx.transaction.hash;
 			showTransaction.value = true;
-		}catch (e) {
+		} catch(e) {
 			console.error('Error creating a new plan:', e);
-		}finally {
+		} finally {
 			loading.value = false;
 		}
 	};
@@ -233,8 +258,14 @@
 <!--suppress SassScssResolvedByNameOnly -->
 <style lang="sass" scoped>
 
+	.bounty
+		margin-bottom: 1rem
+		padding: 1rem 0
+		background: var(--brand2)
+		color: white
+
 	.new-plan-wrapper
-		padding-top: calc(64px + 1rem)
+		padding-top: calc(64px)
 
 		.plan-content
 			padding: 0 1rem

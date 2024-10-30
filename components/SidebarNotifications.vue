@@ -1,5 +1,5 @@
 <template>
-	<div class="transaction-sidebar bg-white shadow-sm rounded-3 p-4 w-100 d-flex flex-column">
+	<div class="transaction-sidebar">
 		<!-- Header -->
 		<div class="d-flex justify-content-between align-items-center mb-4">
 			<h5 class="fw-bold m-0">Transaction History</h5>
@@ -14,15 +14,15 @@
 				class="transaction-item bg-light rounded p-3 mb-3 hover-shadow transition w-100"
 			>
 				<!-- Transaction Header -->
-				<div class="d-flex justify-content-between align-items-start mb-2">
+				<div class="d-flex justify-content-between align-items-start">
 					<h6 class="fw-semibold text-primary mb-0">
 						{{ getActionTitle(interaction) }}
 					</h6>
 				</div>
 				<div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="text-muted small">
-					{{ formatTimestamp(interaction.block_timestamp) }}
-                </span>
+					<span class="text-muted small">
+						{{ formatTimestamp(interaction.block_timestamp) }}
+					</span>
 				</div>
 
 				<!-- Transaction Description -->
@@ -38,11 +38,11 @@
 				<!-- Transaction Link -->
 				<a
 					:href="`https://explorer.${networkId}.near.org/transactions/${interaction.transaction_hash}`"
-					class="btn btn-link btn-sm text-decoration-none p-0"
+					class="btn btn-outline-primary btn-sm text-decoration-none"
 					target="_blank"
 					rel="noopener"
 				>
-					View Transaction
+					Transaction
 					<i class="bi bi-box-arrow-up-right ms-1"></i>
 				</a>
 			</div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-	const emit = defineEmits(['close']);
+	const emit = defineEmits([ 'close' ]);
 	const walletStore = useWalletStore();
 	const interactions = computed(() => walletStore.interactionsData);
 	const networkId = process.env.NETWORK_ID || 'testnet';
@@ -60,14 +60,14 @@
 	const formatTimestamp = (timestamp) => {
 		const milliseconds = Number(BigInt(timestamp) / 1000000n);
 		const date = new Date(milliseconds);
-		const options = {year: 'numeric', month: 'long', day: 'numeric'};
+		const options = { year: 'numeric', month: 'long', day: 'numeric' };
 		const formattedDate = date.toLocaleDateString(undefined, options);
-		const formattedTime = date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
-		return `${formattedDate} ${formattedTime}`;
+		const formattedTime = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+		return `${ formattedDate } ${ formattedTime }`;
 	};
 	// Get human-readable title for the action
 	const getActionTitle = (interaction) => {
-		if (!interaction.actions?.[0]) return 'Transaction';
+		if(!interaction.actions?.[0]) return 'Transaction';
 
 		const action = interaction.actions[0];
 		const method = action.method;
@@ -79,7 +79,7 @@
 			get_bounty: 'Viewed Bounty',
 			get_all_bounties: 'Viewed All Bounties',
 			get_participant_bounties: 'Viewed Participant Bounties',
-			get_creator_bounties: 'Viewed Creator Bounties'
+			get_creator_bounties: 'Viewed Creator Bounties',
 		};
 
 		return titles[method] || 'Contract Interaction';
@@ -87,53 +87,53 @@
 
 	// Get human-readable description for the action
 	const getActionDescription = (interaction) => {
-		if (!interaction.actions?.[0]) return '';
+		if(!interaction.actions?.[0]) return '';
 
 		const action = interaction.actions[0];
 		const method = action.method;
 		const args = action.args ? JSON.parse(action.args) : {};
 
-		switch (method) {
+		switch(method) {
 			case 'create_bounty':
 				const totalPrize = args.prizes?.reduce((sum, prize) => sum + BigInt(prize), BigInt(0));
-				return `Created a new bounty with ${args.prizes?.length || 0} prizes totaling ${formatNearAmount(totalPrize)} NEAR`;
+				return `Created a new bounty with ${ args.prizes?.length || 0 } prizes totaling ${ formatNearAmount(totalPrize) } NEAR`;
 
 			case 'participate':
-				return `Joined bounty #${args.bountyId}`;
+				return `Joined bounty #${ args.bountyId }`;
 
 			case 'finalize_bounty':
-				return `Finalized bounty #${args.bountyId} with ${args.winners?.length || 0} winners`;
+				return `Finalized bounty #${ args.bountyId } with ${ args.winners?.length || 0 } winners`;
 
 			case 'get_bounty':
-				return `Viewed details for bounty #${args.bountyId}`;
+				return `Viewed details for bounty #${ args.bountyId }`;
 
 			case 'get_participant_bounties':
-				return `Viewed bounties for participant: ${args.participantId}`;
+				return `Viewed bounties for participant: ${ args.participantId }`;
 
 			case 'get_creator_bounties':
-				return `Viewed bounties created by: ${args.creatorId}`;
+				return `Viewed bounties created by: ${ args.creatorId }`;
 
 			default:
-				return `Interacted with contract method: ${method}`;
+				return `Interacted with contract method: ${ method }`;
 		}
 	};
 
 	// Get detailed information about the transaction
 	const getActionDetails = (interaction) => {
-		if (!interaction.actions?.[0]) return null;
+		if(!interaction.actions?.[0]) return null;
 
 		const action = interaction.actions[0];
 		const args = action.args ? JSON.parse(action.args) : {};
 
-		switch (action.method) {
+		switch(action.method) {
 			case 'create_bounty':
 				return args.prizes?.map((prize, index) =>
-					`Prize ${index + 1}: ${formatNearAmount(prize)} NEAR`
+					`Prize ${ index + 1 }: ${ formatNearAmount(prize) } NEAR`,
 				).join('\n');
 
 			case 'finalize_bounty':
 				return args.winners?.map((winner, index) =>
-					`Winner ${index + 1}: ${winner}`
+					`Winner ${ index + 1 }: ${ winner }`,
 				).join('\n');
 
 			default:
@@ -155,59 +155,12 @@
 	});
 </script>
 
+<style lang="sass" scoped>
+	.transaction-sidebar
+		padding: 1rem
+		height: calc(100dvh - 100px)
+		overflow-y: auto
+		position: sticky
+		top: 0
 
-<style scoped>
-	/* Custom scrollbar styling */
-	.custom-scrollbar {
-		height: calc(100vh - 120px); /* Adjust based on your needs */
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding-right: 6px;
-	}
-
-	/* Webkit browsers (Chrome, Safari, newer Edge) */
-	.custom-scrollbar::-webkit-scrollbar {
-		width: 8px;
-	}
-
-	.custom-scrollbar::-webkit-scrollbar-track {
-		background: #f1f1f1;
-		border-radius: 10px;
-	}
-
-	.custom-scrollbar::-webkit-scrollbar-thumb {
-		background: #c1c1c1;
-		border-radius: 10px;
-		transition: background 0.3s ease;
-	}
-
-	.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-		background: #a8a8a8;
-	}
-
-	/* Firefox */
-	.custom-scrollbar {
-		scrollbar-width: thin;
-		scrollbar-color: #c1c1c1 #f1f1f1;
-	}
-
-	/* Animation and hover effects */
-	.hover-shadow:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-	}
-
-	.transition {
-		transition: all 0.3s ease;
-	}
-
-	/* Ensure full width */
-	.transaction-sidebar {
-		min-height: 100vh;
-		max-width: 100%;
-	}
-
-	.transaction-item {
-		width: 100%;
-	}
 </style>

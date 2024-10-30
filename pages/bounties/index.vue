@@ -29,9 +29,12 @@
 						</div>
 
 						<div class="bounty-info">
-							<nuxt-link :to="`/bounty/${b.id}`" class="text-decoration-none text-dark">
-								<h4>{{ b.title }}</h4>
-							</nuxt-link>
+							<h4>
+								<nuxt-link :to="`/bounties/${b.id}`" class="text-decoration-none text-dark">
+									{{ b.title }}
+								</nuxt-link>
+							</h4>
+
 							<p>{{ b.metas.description }}</p>
 							<bounty-meta-info
 								:metas="b.metas"
@@ -41,17 +44,13 @@
 							/>
 						</div>
 
-						<div class="p-2">
-              <span
-				  class="badge"
-				  :class="b.isActive ? 'bg-success' : 'bg-secondary'"
-			  >
-                {{ b.isActive ? 'Active' : 'Finished' }}
-              </span>
-						</div>
+						<span
+							class="badge"
+							:class="b.isActive ? 'bg-success' : 'bg-secondary'"
+						>{{ b.isActive ? 'Active' : 'Finished' }}</span>
 
 						<!-- Botones de Toggle -->
-						<div class="p-2">
+						<!--<div>
 							<button
 								class="btn btn-link p-0 me-3"
 								@click.stop="toggleParticipants(b.id)"
@@ -66,10 +65,10 @@
 							>
 								{{ isWinnersVisible(b.id) ? 'Hide Winners' : 'View Winners' }}
 							</button>
-						</div>
+						</div>-->
 
 						<!-- Sección de Participantes -->
-						<div class="mt-2" v-if="b.participants?.length && isParticipantsVisible(b.id)">
+						<!--<div class="mt-2" v-if="b.participants?.length && isParticipantsVisible(b.id)">
 							<ul class="list-group list-group-flush mt-2">
 								<li
 									v-for="participant in b.participants"
@@ -79,10 +78,10 @@
 									{{ participant }}
 								</li>
 							</ul>
-						</div>
+						</div>-->
 
 						<!-- Sección de Ganadores -->
-						<div class="mt-2" v-if="b.winners?.length && isWinnersVisible(b.id)">
+						<div v-if="b.winners?.length && isWinnersVisible(b.id)">
 							<ul class="list-group list-group-flush mt-2">
 								<li
 									v-for="winner in b.winners"
@@ -95,24 +94,24 @@
 						</div>
 
 						<!-- Botones de Acción -->
-						<div class="p-2 block">
+						<div class="bounty-actions">
 							<button
 								v-if="canFinalize(b)"
 								@click="$emit('finalize', b)"
-								class="btn btn-primary mt-2 me-2"
+								class="btn btn-primary btn-sm"
 							>
 								Finalize Bounty
 							</button>
 
 							<button
 								v-if="canParticipate(b)"
-								@click="$emit('participate', b.id)"
-								class="btn btn-warning mt-2 me-2"
+								@click="participate(b)"
+								class="btn btn-warning btn-sm"
 							>
-								Participate
+								Submit Plan
 							</button>
 
-							<nuxt-link :to="`/bounties/${b.id}`" class="btn btn-secondary">
+							<nuxt-link :to="`/bounties/${b.id}`" class="btn btn-secondary btn-sm">
 								View Bounty
 							</nuxt-link>
 						</div>
@@ -120,9 +119,8 @@
 				</div>
 			</div>
 
-			<aside class="sidebar pt-2 pb-1">
-				<SidebarNotifications
-				/>
+			<aside class="sidebar">
+				<sidebar-notifications />
 			</aside>
 		</div>
 	</div>
@@ -137,7 +135,7 @@
 	const winnersVisibility = ref({});
 
 	// Meta de la Página
-	definePageMeta({layout: 'bountrip'});
+	definePageMeta({ layout: 'bountrip' });
 
 	// ID del Usuario Actual (Reemplazar con la lógica real de tu aplicación)
 	const userAccountId = ref('quantum-coders.testnet'); // Ejemplo, reemplazar según sea necesario
@@ -155,6 +153,10 @@
 	// Verificar si los Participantes están visibles
 	const isParticipantsVisible = (id) => {
 		return participantsVisibility.value[id];
+	};
+
+	const participate = (b) => {
+		useRouter().push(`/bounties/${ b.id }/new`);
 	};
 
 	// Verificar si los Ganadores están visibles
@@ -179,9 +181,9 @@
 	// Obtener las Bounties al montar el componente
 	onMounted(async () => {
 		try {
-			const {data} = await $fetch(`${useRuntimeConfig().public.apiURL}/bounties`);
+			const { data } = await $fetch(`${ useRuntimeConfig().public.apiURL }/bounties`);
 			bounties.value = data;
-		} catch (error) {
+		} catch(error) {
 			console.error('Error fetching bounties:', error);
 		}
 	});
@@ -196,19 +198,20 @@
 		flex-grow: 1
 
 	.sidebar
-		max-width: 450px
-		flex-shrink: 1
+		width: 450px
+		flex-shrink: 0
 		border-left: 1px solid #DDD
 
 	.bounty-image-thumb
 		width: 100%
 		height: 100%
+		object-fit: cover
 		aspect-ratio: 16/9
 		background-size: cover
 		position: relative
 
 	.banner
-		aspect-ratio: 2
+		aspect-ratio: 4.5
 		border-radius: 0.5rem
 		background: var(--brand2) url('/images/banner.jpg') no-repeat right bottom
 		background-size: auto 100%
@@ -235,6 +238,7 @@
 
 		.bounty
 			display: flex
+			align-items: stretch
 			border-radius: 0.5rem
 			overflow: clip
 			border: 1px solid var(--bs-border-color)
@@ -244,15 +248,9 @@
 			&:hover
 				border-color: var(--brand2)
 
-			.bounty-link
-			/* Eliminado @extend .absolute-full para no cubrir toda la tarjeta */
-
-
 			.bounty-image
 				width: 150px
 				flex-shrink: 0
-				background: url('/images/thumb.jpg') no-repeat center center
-				background-size: cover
 
 				.bounty-prize
 					font-weight: bold
@@ -282,4 +280,16 @@
 
 					&.meta
 						font-size: 0.75rem
+
+			.badge
+				position: absolute
+				right: 0.5rem
+				top: 0.5rem
+
+			.bounty-actions
+				position: absolute
+				bottom: 0.5rem
+				right: 0.5rem
+				display: flex
+				gap: 0.5rem
 </style>

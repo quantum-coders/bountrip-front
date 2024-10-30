@@ -1,11 +1,16 @@
 <template>
-	<div class="bounty-wrapper">
+	<div class="bounty-wrapper" v-if="bounty">
 		<div class="bounty-banner">
 			<div class="banner-info">
 				<div class="container d-flex flex-column">
 					<div class="shadow" />
 					<h2>{{ bounty?.title }}</h2>
-					<bounty-meta-info class="mb-2" :bounty="bounty" />
+					<bounty-meta-info
+						:metas="bounty.metas"
+						:created="bounty.created"
+						:participants="bounty.participants || []"
+						class="mb-2"
+					/>
 					<!-- Added tags section -->
 					<div class="tags-container mb-1">
 						<span v-for="tag in bounty?.metas?.selectedTags" :key="tag" class="tag">
@@ -32,13 +37,13 @@
 							</div>
 						</div>
 
-						<p class="bounty-prize">
-							<small>Prize</small>
+						<p class="bounty-prize" v-for="(p, i) in bounty.prizes">
+							<small>{{ labels[i] }}</small>
 							<span>
 								<span class="icon">
 									<icon name="simple-icons:near" />
 								</span>
-								{{ bounty?.totalPrize }} NEAR
+								{{ p }} NEAR
 							</span>
 						</p>
 
@@ -58,7 +63,8 @@
 							<span>{{ bounty?.status }}</span>
 						</div>
 
-						<button href="#" class="btn btn-primary w-100" :disabled="!bounty?.isActive"
+						<button
+							href="#" class="btn btn-primary w-100" :disabled="!bounty?.isActive"
 							@click="goToBountySubmission(bounty)"
 						>
 							{{ bounty?.isActive ? 'Submit your plan' : 'Bounty Closed' }}
@@ -92,7 +98,7 @@
 					<!-- Added place details -->
 					<div class="place-details">
 						<h4>Location Details</h4>
-						<div class="map" id="map"></div>
+						<div class="map" id="map" />
 						<p>{{ bounty?.metas?.place?.formatted_address }}</p>
 					</div>
 
@@ -141,10 +147,21 @@
 	const route = useRoute();
 	const router = useRouter();
 
+	const labels = [
+		'First Place',
+		'Second Place',
+		'Third Place',
+		'Fourth Place',
+		'Fifth Place',
+	];
+
 	onMounted(async () => {
 		const bountyId = route.params.id;
 		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
 		bounty.value = bountyData.data;
+
+		// await 1 second for the bounty to be loaded
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		// setup a google map
 		const map = new google.maps.Map(document.getElementById('map'), {
@@ -167,8 +184,8 @@
 	});
 
 	const goToBountySubmission = (bounty) => {
-		if (bounty.isActive) {
-			router.push(`/bounties/${bounty.id}/new`);
+		if(bounty.isActive) {
+			router.push(`/bounties/${ bounty.id }/new`);
 		}
 	};
 
@@ -182,8 +199,8 @@
 
 		.bounty-banner
 			width: 100%
-			background: url('/images/splash/japan.jpg') no-repeat center center
-			background-size: cover
+			background: var(--brand2) url('/images/pattern-white.svg') repeat fixed
+			background-size: 100px
 			height: 50dvh
 			border-radius: 0 0 1rem 1rem
 			overflow: clip
@@ -202,6 +219,7 @@
 				padding-bottom: 0.5rem
 
 				.shadow
+					display: none
 					width: 110%
 					height: 200px
 					border-radius: 100%
@@ -265,7 +283,7 @@
 							display: block
 
 				.bounty-prize
-					font-size: 2rem
+					font-size: 1.5rem
 					line-height: 1
 
 					small

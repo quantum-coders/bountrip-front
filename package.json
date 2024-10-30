@@ -38,6 +38,7 @@
 		"pinia": "^2.2.4",
 		"vue": "latest",
 		"vue-router": "latest",
+		"vue-waypoint": "^4.3.0",
 		"vue3-range-calendar": "^0.3.3"
 	}
 }

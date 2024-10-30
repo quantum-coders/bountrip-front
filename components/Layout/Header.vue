@@ -1,5 +1,5 @@
 <template>
-	<header class="layout-header" :class="{ home: props.home }">
+	<header class="layout-header" :class="{ home: props.home, sticky: sticky }">
 		<div class="container d-flex align-items-center">
 			<nuxt-link to="/">
 				<svgo-logo class="logo" />
@@ -23,9 +23,11 @@
 			</nav>
 		</div>
 	</header>
+	<waypoint @change="headerWaypoint" />
 </template>
 
 <script setup>
+	import { Waypoint } from "vue-waypoint";
 
 	const props = defineProps({
 		home: {
@@ -33,6 +35,12 @@
 			default: false,
 		},
 	});
+
+	const sticky = ref(false);
+
+	const headerWaypoint = (state) => {
+		sticky.value = state.going === "OUT";
+	};
 
 </script>
 
@@ -50,13 +58,19 @@
 		height: 64px
 		top: 0.5rem
 		border-bottom: 0.25rem solid white
+		transition: background 0.3s
 
 		&.home
 			background: transparent
 
-		&:not(.home)
+		&.sticky
+			background: var(--brand1)
+
+		&:not(.home),
+		&.sticky
 			:deep(.logo)
 				[id$=bup]
+					transition: fill 0.3s
 					fill: white !important
 
 		.logo
