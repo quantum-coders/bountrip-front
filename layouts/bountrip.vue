@@ -11,7 +11,7 @@
 		<main class="layout-main">
 			<nuxt-page />
 		</main>
-		<footer></footer>
+		<layout-footer />
 	</div>
 </template>
 

@@ -1,12 +1,12 @@
 <template>
 	<div class="login">
 		<button class="login-button" v-if="!isConnected" @click="handleClick">
-			<platform-loading :active="loading" :width="'20px'" />
+			<platform-loading :active="loading" :width="20" />
 			<span>Connect Wallet</span>
 		</button>
 		<div class="user-menu" v-else>
 			<span class="login-button">
-				<platform-loading :active="loading" :width="'20px'" />
+				<platform-loading :active="loading" :width="20" />
 				{{ accountId }}
 			</span>
 			<nav class="user-nav" v-if="!loading">
@@ -14,10 +14,10 @@
 					<span class="icon">
 						<icon name="simple-icons:near" />
 					</span>
-					{{accountBalance}} NEAR
+					{{ accountBalance }} NEAR
 				</div>
 				<ul>
-					<li><a href="#">User Dashboard</a></li>
+					<li><nuxt-link to="/dashboard">User Dashboard</nuxt-link></li>
 					<li><a href="#" @click.prevent="handleClick">Logout</a></li>
 				</ul>
 			</nav>
@@ -29,8 +29,6 @@
 
 	const loading = ref(false);
 	const walletStore = useWalletStore();
-
-	//console.log('Wallet', walletStore.wallet.getAccounts());
 
 	// Initialize the wallet store when the component is mounted
 	onMounted(async () => {
@@ -45,7 +43,7 @@
 				idNear: walletStore.account?.accountId,
 			}),
 		});
-		console.info("Connect respondes", connectRes.data.value.data);
+		console.info('Connect respondes', connectRes.data.value.data);
 		loading.value = false;
 	});
 
@@ -53,6 +51,7 @@
 	const isConnected = computed(() => walletStore.isConnected);
 	const accountId = computed(() => walletStore.account?.accountId || '');
 	const accountBalance = computed(() => walletStore.accountBalance || '');
+
 	// Handle button click for connecting or disconnecting the wallet
 	const handleClick = () => {
 		if(!isConnected.value) {
