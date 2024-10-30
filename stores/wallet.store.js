@@ -32,14 +32,24 @@ export const useWalletStore = defineStore('wallet', () => {
 	const participantBounties = ref([]);
 	const loading = ref(false);
 	const error = ref(null);
-
+	const accountId = ref(null);
 	// Getters
 	const activeBounties = computed(() =>
 		bounties.value.filter(bounty => bounty.isActive),
 	);
-
+	onMounted(() => {
+		try {
+			const data = localStorage.getItem('near_app_wallet_auth_key')
+			if (data) {
+				const jsonObj = JSON.parse(data);
+				console.log('jsonObj', jsonObj);
+				accountId.value = jsonObj?.accountId;
+			}
+		}catch (error) {
+			console.error('Error getting accountId from localStorage:', error);
+		}
+	})
 	/// crtea a function to get from local storage near_app_wallet_auth_key and the value acount id: {"accountId":"john-milton.testnet","allKeys":["ed25519:HoXu4QTj6HgzBnvKWHdM1LFcbtzUSeAPAbfoJ2aePsbT"]}
-	const accountId = localStorage.getItem('near_app_wallet_auth_key') ? JSON.parse(localStorage.getItem('near_app_wallet_auth_key')).accountId : null;
 	const connectionConfig = {
 		networkId: 'testnet',
 		keyStore: new keyStores.BrowserLocalStorageKeyStore(),
@@ -110,18 +120,17 @@ export const useWalletStore = defineStore('wallet', () => {
 
 			const currentWallet = await selector.value.wallet();
 
-			console.log('selector', await currentWallet.getAccounts());
-
 			const accounts = await currentWallet.getAccounts();
 			if (accounts.length > 0) {
 				account.value = accounts[0];
 				isConnected.value = true;
 				wallet.value = await selector.value.wallet();
 			}
-
 			await getAccountBalance();
 		} catch (error) {
-			console.error('Falló la inicialización:', error);
+			// loading
+
+			console.error('Falló la inicialización:');
 			throw error;
 		}
 	};
@@ -418,6 +427,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		activeBounties,
 		// Funciones del wallet
 		initialize,
+		accountId,
 		connectWallet,
 		disconnectWallet,
 		// Funciones de bounties
