@@ -98,6 +98,7 @@
 										class="form-control"
 										rows="3"
 										placeholder="Add a comment for this place"
+										v-model="p.comment"
 									/>
 								</div>
 							</div>
@@ -185,15 +186,29 @@
 			placeAddress: place.formatted_address,
 			placeCategory: place.types[0],
 			placeRating: place.rating,
-			placeReviews: place.reviews,
 			placePhotos: place.photos,
 			placePriceLevel: place.price_level,
-			placeComment: '',
+			placeComment: place.comment,
 		});
 
 		boundMap();
 
 	};
+
+	/// watch places and update planData places
+	watch(places, (newValue) => {
+		console.info("Places changed........", newValue);
+		planData.value.places = newValue.map((place) => ({
+			placeId: place.place_id,
+			placeName: place.name,
+			placeAddress: place.formatted_address,
+			placeCategory: place.types[0],
+			placeRating: place.rating,
+			placePhotos: place.photos,
+			placePriceLevel: place.price_level,
+			placeComment: place.comment,
+		}));
+	}, { deep: true });
 
 	watch(planData, (newValue) => {
 		useNewPlanStore().plan = {
