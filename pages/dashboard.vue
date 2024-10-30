@@ -28,8 +28,12 @@
 				<div class="content">
 					<nav class="dashboard-nav">
 						<ul>
-							<li><nuxt-link to="/dashboard">My Created Bounties</nuxt-link></li>
-							<li><nuxt-link to="/dashboard/submissions">My Submissions</nuxt-link></li>
+							<li>
+								<nuxt-link to="/dashboard">My Created Bounties</nuxt-link>
+							</li>
+							<li>
+								<nuxt-link to="/dashboard/submissions">My Submissions</nuxt-link>
+							</li>
 						</ul>
 					</nav>
 

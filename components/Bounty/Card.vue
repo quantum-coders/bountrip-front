@@ -8,7 +8,7 @@
 		<div class="bounty-info">
 			<h4>Looking for the best Tokyo adventure</h4>
 			<p>Hello friends! I'm looking for the ultimate adventure in Japan.</p>
-			<bounty-meta-info class="mb-0" />
+			<!--<bounty-meta-info class="mb-0" />-->
 		</div>
 	</article>
 </template>

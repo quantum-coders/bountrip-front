@@ -30,6 +30,8 @@ export const useWalletStore = defineStore('wallet', () => {
 		bounties.value.filter(bounty => bounty.isActive),
 	);
 
+	const user = ref(null);
+
 	const setAccountId = () => {
 		try {
 			const data = localStorage.getItem('near_app_wallet_auth_key');
@@ -392,6 +394,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		account,
 		isConnected,
 		interactionsData,
+		user,
 		// Estado de bounties
 		bounties,
 		setAccountId,

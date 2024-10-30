@@ -44,6 +44,9 @@
 				}),
 			});
 			console.info("Connect respondes", connectRes.data.value.data);
+
+			walletStore.user = connectRes.data.value.data;
+
 			useWalletStore().setAccountId();
 			loading.value = false;
 		}catch (e) {

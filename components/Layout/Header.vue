@@ -11,6 +11,9 @@
 						<nuxt-link to="/">Home</nuxt-link>
 					</li>
 					<li>
+						<nuxt-link to="/new">Create a new bounty</nuxt-link>
+					</li>
+					<li>
 						<nuxt-link to="/bounties">Bounties</nuxt-link>
 					</li>
 					<li>

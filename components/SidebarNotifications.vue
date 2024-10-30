@@ -158,9 +158,9 @@
 <style lang="sass" scoped>
 	.transaction-sidebar
 		padding: 1rem
-		height: calc(100dvh - 100px)
+		height: calc(600px)
 		overflow-y: auto
 		position: sticky
-		top: 0
+		top: calc(64px + 1rem)
 
 </style>
