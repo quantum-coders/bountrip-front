@@ -32,19 +32,23 @@
 
 	// Initialize the wallet store when the component is mounted
 	onMounted(async () => {
+		try {
+			loading.value = true;
+			await walletStore.initialize();
+			console.log('walletStore.isConnected', walletStore.isConnected);
 
-		loading.value = true;
-		await walletStore.initialize();
-		console.log('walletStore.isConnected', walletStore.isConnected);
-
-		const connectRes = await useBaseFetch('/users/connect', {
-			method: 'POST',
-			body: JSON.stringify({
-				idNear: walletStore.account?.accountId,
-			}),
-		});
-		console.info('Connect respondes', connectRes.data.value.data);
-		loading.value = false;
+			const connectRes = await useBaseFetch('/users/connect', {
+				method: 'POST',
+				body: JSON.stringify({
+					idNear: walletStore.account?.accountId,
+				}),
+			});
+			console.info("Connect respondes", connectRes.data.value.data);
+			loading.value = false;
+		}catch (e) {
+			console.error('Error initializing wallet', e);
+			loading.value = false;
+		}
 	});
 
 	// Computed properties to reactively track connection status and account ID

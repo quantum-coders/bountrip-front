@@ -1,40 +1,29 @@
 <template>
-	<p class="meta" v-if="bounty">
+	<p class="meta">
 		<span>
-			<icon name="material-symbols:calendar-clock-outline" />
-			{{ startDate }}
-			<icon class="arrow" name="material-symbols:arrow-right-alt" />
-			{{ endDate }}
+			<icon name="material-symbols:calendar-clock-outline"/>
+			{{   useDateFormat(props.metas?.selectedDate[0], 'MMMM DD, YYYY').value  }}
+			<icon class="arrow" name="material-symbols:arrow-right-alt"/>
+			{{ useDateFormat(props.metas?.selectedDate[1], 'MMMM DD, YYYY').value  }}
 		</span>
 		<span>
-			<icon name="material-symbols:alarm-outline-rounded" />
-			Due in {{ dueDate }} day{{ dueDate > 1 ? 's' : '' }}
+			<icon name="material-symbols:alarm-outline-rounded"/>
+			{{ useDateFormat(props.created, 'MMMM DD, YYYY').value  }}
 		</span>
 		<span>
-			<icon name="material-symbols:planner-banner-ad-pt-outline-sharp" />
-			0 plans
+			<icon name="material-symbols:planner-banner-ad-pt-outline-sharp"/>
+			{{ props.participants?.length }} Plans
 		</span>
 	</p>
 </template>
 
 <script setup>
-	import moment from 'moment';
+	import {useDateFormat} from '@vueuse/core';
 
 	const props = defineProps({
-		bounty: {
-			type: Object,
-			required: true
-		}
-	});
-
-	const startDate = computed(() => moment(props.bounty.metas.selectedDate[0]).format('MMM DD'));
-	const endDate = computed(() => moment(props.bounty.metas.selectedDate[1]).format('MMM DD'));
-
-	const dueDate = computed(() => {
-		// how many days to trip start
-		const start = moment(props.bounty.metas.selectedDate[0]);
-		const now = moment();
-		return start.diff(now, 'days');
+		metas: Object,
+		created: String,
+		participants: Array
 	});
 
 </script>

@@ -27,6 +27,7 @@
 		"@near-wallet-selector/wallet-connect": "^8.9.14",
 		"@nuxtjs/google-fonts": "^3.2.0",
 		"@thewebchimp/chimp-nuxt-layer": "^0.0.23",
+		"@vueuse/core": "^11.1.0",
 		"eventemitter3": "^5.0.1",
 		"moment": "^2.30.1",
 		"near-api-js": "^5.0.1",

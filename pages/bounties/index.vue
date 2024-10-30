@@ -1,34 +1,196 @@
 <template>
-	<div class="bounties-wrapper mb-3 flex-grow-1 flex-column d-flex">
-
+	<div class="bounties-wrapper flex-grow-1 flex-column d-flex">
 		<div class="container d-flex gap-2 flex-grow-1">
 			<div class="content">
+				<!-- Banner -->
 				<div class="banner">
 					<div class="banner-info">
 						<h4>Earn money<br>sharing your trip tips</h4>
-						<p class="mb-2">Design the ultimate travel plan for a fellow adventurer and earn NEAR
-							rewards!</p>
-						<p class="mb-0"><a href="#" class="btn btn-primary btn-sm px-4">Sign up</a></p>
+						<p class="mb-2">
+							Design the ultimate travel plan for a fellow adventurer and earn NEAR
+							rewards!
+						</p>
 					</div>
 				</div>
 
+				<!-- Lista de Bounties -->
 				<div class="bounty-list">
-					<bounty-card v-for="i in 10" />
+					<article class="bounty" v-for="b in bounties" :key="b.id">
+						<!-- Enlaces Restringidos -->
+						<div class="bounty-image">
+							<nuxt-link :to="`/bounties/${b.id}`">
+								<img
+									:src="b.metas.placePhotos[0].url"
+									class="bounty-image-thumb"
+									alt="Imagen de la Bounty"
+								/>
+							</nuxt-link>
+							<span class="bounty-prize">{{ b.totalPrize }} NEAR</span>
+						</div>
+
+						<div class="bounty-info">
+							<nuxt-link :to="`/bounty/${b.id}`" class="text-decoration-none text-dark">
+								<h4>{{ b.title }}</h4>
+							</nuxt-link>
+							<p>{{ b.metas.description }}</p>
+							<bounty-meta-info
+								:metas="b.metas"
+								:created="b.created"
+								:participants="b.participants || []"
+								class="mb-0"
+							/>
+						</div>
+
+						<div class="p-2">
+              <span
+				  class="badge"
+				  :class="b.isActive ? 'bg-success' : 'bg-secondary'"
+			  >
+                {{ b.isActive ? 'Active' : 'Finished' }}
+              </span>
+						</div>
+
+						<!-- Botones de Toggle -->
+						<div class="p-2">
+							<button
+								class="btn btn-link p-0 me-3"
+								@click.stop="toggleParticipants(b.id)"
+								v-if="b.participants?.length"
+							>
+								{{ isParticipantsVisible(b.id) ? 'Hide Participants' : 'View Participants' }}
+							</button>
+							<button
+								class="btn btn-link p-0"
+								@click.stop="toggleWinners(b.id)"
+								v-if="b.winners?.length"
+							>
+								{{ isWinnersVisible(b.id) ? 'Hide Winners' : 'View Winners' }}
+							</button>
+						</div>
+
+						<!-- Sección de Participantes -->
+						<div class="mt-2" v-if="b.participants?.length && isParticipantsVisible(b.id)">
+							<ul class="list-group list-group-flush mt-2">
+								<li
+									v-for="participant in b.participants"
+									:key="participant"
+									class="list-group-item"
+								>
+									{{ participant }}
+								</li>
+							</ul>
+						</div>
+
+						<!-- Sección de Ganadores -->
+						<div class="mt-2" v-if="b.winners?.length && isWinnersVisible(b.id)">
+							<ul class="list-group list-group-flush mt-2">
+								<li
+									v-for="winner in b.winners"
+									:key="winner"
+									class="list-group-item"
+								>
+									{{ winner }}
+								</li>
+							</ul>
+						</div>
+
+						<!-- Botones de Acción -->
+						<div class="p-2 block">
+							<button
+								v-if="canFinalize(b)"
+								@click="$emit('finalize', b)"
+								class="btn btn-primary mt-2 me-2"
+							>
+								Finalize Bounty
+							</button>
+
+							<button
+								v-if="canParticipate(b)"
+								@click="$emit('participate', b.id)"
+								class="btn btn-warning mt-2 me-2"
+							>
+								Participate
+							</button>
+
+							<nuxt-link :to="`/bounties/${b.id}`" class="btn btn-secondary">
+								View Bounty
+							</nuxt-link>
+						</div>
+					</article>
 				</div>
 			</div>
+
 			<aside class="sidebar">
+				<!-- Contenido del Sidebar -->
 			</aside>
 		</div>
 	</div>
 </template>
 
 <script setup>
+	import {ref, onMounted} from 'vue';
+	import {useRuntimeConfig} from '#imports';
+
+	// Estado de las Bounties
+	const bounties = ref([]);
+
+	// Estados de visibilidad para Participantes y Ganadores por ID de Bounty
+	const participantsVisibility = ref({});
+	const winnersVisibility = ref({});
+
+	// Meta de la Página
 	definePageMeta({layout: 'bountrip'});
+
+	// ID del Usuario Actual (Reemplazar con la lógica real de tu aplicación)
+	const userAccountId = ref('quantum-coders.testnet'); // Ejemplo, reemplazar según sea necesario
+
+	// Función para alternar la visibilidad de Participantes
+	const toggleParticipants = (id) => {
+		participantsVisibility.value[id] = !participantsVisibility.value[id];
+	};
+
+	// Función para alternar la visibilidad de Ganadores
+	const toggleWinners = (id) => {
+		winnersVisibility.value[id] = !winnersVisibility.value[id];
+	};
+
+	// Verificar si los Participantes están visibles
+	const isParticipantsVisible = (id) => {
+		return participantsVisibility.value[id];
+	};
+
+	// Verificar si los Ganadores están visibles
+	const isWinnersVisible = (id) => {
+		return winnersVisibility.value[id];
+	};
+
+	// Determinar si el usuario puede participar
+	const canParticipate = (bounty) => {
+		return bounty.isActive && bounty.creator !== useWalletStore().accountId;
+	};
+
+	// Determinar si el usuario puede finalizar la bounty
+	const canFinalize = (bounty) => {
+		return (
+			bounty.creator === useWalletStore().accountId &&
+			bounty.isActive &&
+			bounty.participants?.length > 0
+		);
+	};
+
+	// Obtener las Bounties al montar el componente
+	onMounted(async () => {
+		try {
+			const {data} = await $fetch(`${useRuntimeConfig().public.apiURL}/bounties`);
+			bounties.value = data;
+		} catch (error) {
+			console.error('Error fetching bounties:', error);
+		}
+	});
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
 <style lang="sass" scoped>
-
 	.bounties-wrapper
 		margin-top: calc(64px + 0.5rem)
 
@@ -40,8 +202,15 @@
 		flex-shrink: 1
 		border-left: 1px solid #DDD
 
+	.bounty-image-thumb
+		width: 100%
+		height: 100%
+		aspect-ratio: 16/9
+		background-size: cover
+		position: relative
+
 	.banner
-		aspect-ratio: 4
+		aspect-ratio: 2
 		border-radius: 0.5rem
 		background: var(--brand2) url('/images/banner.jpg') no-repeat right bottom
 		background-size: auto 100%
@@ -66,4 +235,53 @@
 		flex-direction: column
 		gap: 0.5rem
 
+		.bounty
+			display: flex
+			border-radius: 0.5rem
+			overflow: clip
+			border: 1px solid var(--bs-border-color)
+			cursor: pointer
+			position: relative
+
+			&:hover
+				border-color: var(--brand2)
+
+			.bounty-link
+			/* Eliminado @extend .absolute-full para no cubrir toda la tarjeta */
+
+
+			.bounty-image
+				width: 150px
+				flex-shrink: 0
+				background: url('/images/thumb.jpg') no-repeat center center
+				background-size: cover
+
+				.bounty-prize
+					font-weight: bold
+					margin-bottom: 0.5rem
+					z-index: 1
+					position: absolute
+					top: 0.5rem
+					left: 0.5rem
+					font-size: 0.75rem
+					background: var(--brand2)
+					padding: 0.25rem 0.5rem
+					border-radius: 0.25rem
+					color: white
+
+			.bounty-info
+				padding: 1rem
+				flex-grow: 1
+
+				h4
+					font-size: 1.2rem
+					margin-bottom: 0.25rem
+					font-weight: 900
+
+				p
+					text-wrap: balance
+					margin-bottom: 0.5rem
+
+					&.meta
+						font-size: 0.75rem
 </style>
