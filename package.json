@@ -1,13 +1,13 @@
 {
 	"name": "nuxt-app",
 	"private": true,
-	"type": "commonjs",
 	"scripts": {
 		"build": "nuxt build",
 		"dev": "nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
-		"postinstall": "nuxt prepare"
+		"postinstall": "nuxt prepare",
+		"start": "node .output/server/index.mjs"
 	},
 	"dependencies": {
 		"@googlemaps/js-api-loader": "^1.16.8",

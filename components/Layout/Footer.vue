@@ -38,5 +38,5 @@
 
 		.legal-bar
 			background: #CCC
-			padding: 1rem 0
+			padding: 1rem 0 1.5rem
 </style>

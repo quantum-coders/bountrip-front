@@ -10,9 +10,6 @@ export default defineNuxtConfig({
 			'Barlow': true
 		}
 	},
-	plugins: [
-		'~/plugins/polyfill-global.client.js',
-	],
 	app: {
 		head: {
 			title: 'Bountrip',

@@ -26,17 +26,21 @@
 						<span v-if="loading">Submitting..</span>
 						<span v-else>Submit Plan</span>
 					</button>
-					<div v-if="showTransaction" class="alert alert-success mt-3">
-						Plan submitted successfully! <a
-						:href="'https://explorer.testnet.near.org/transactions/' + txHash"
-						target="_blank"
-					>View Transaction</a>
-					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="container d-flex flex-grow-1 flex-column">
+
+			<div v-if="showTransaction" class="alert alert-success mt-3 d-flex align-items-center justify-content-between">
+				Plan submitted successfully!
+				<a
+					:href="'https://explorer.testnet.near.org/transactions/' + txHash"
+					target="_blank"
+					class="btn btn-sm btn-outline-dark"
+				>View Transaction</a>
+			</div>
+
 			<!-- title for the plan -->
 			<div class="form-group mb-3">
 				<label class="form-label" for="title">Title for your plan</label>
