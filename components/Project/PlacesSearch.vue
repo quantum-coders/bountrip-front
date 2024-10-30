@@ -37,7 +37,7 @@
 					attribution: photo.html_attributions,
 				}));
 
-				console.log(photos);  // Contains URLs and attributions for each photo
+				place.photos = photos;
 			} else {
 				console.log('No photos available for this place');
 			}

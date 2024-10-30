@@ -75,7 +75,7 @@
 		flex-grow: 1
 
 		.dashboard-nav
-			border-bottom: 2px solid #CCC
+			border-bottom: 1px solid #CCC
 
 			ul
 				display: flex
@@ -98,10 +98,10 @@
 								content: ''
 								display: block
 								width: 50%
-								height: 2px
+								height: 1px
 								background: var(--brand2)
 								position: absolute
-								bottom: -2px
+								bottom: -1px
 								left: 50%
 								transform: translateX(-50%)
 

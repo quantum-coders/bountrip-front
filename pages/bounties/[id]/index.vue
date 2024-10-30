@@ -83,22 +83,16 @@
 				</aside>
 
 				<div class="bounty-description">
-					<!-- Added place details -->
-					<div class="place-details">
-						<h4>Location Details</h4>
-						<ul>
-							<li>
-								<strong>Address:</strong> {{ bounty?.metas?.place?.formatted_address }}
-							</li>
-							<li>
-								<strong>Location:</strong> {{ bounty?.metas?.place?.geometry?.location?.lat }},
-								{{ bounty?.metas?.place?.geometry?.location?.lng }}
-							</li>
-						</ul>
-					</div>
 
 					<h4>Bounty Description</h4>
 					<p>{{ bounty?.metas?.description }}</p>
+
+					<!-- Added place details -->
+					<div class="place-details">
+						<h4>Location Details</h4>
+						<div class="map" id="map"></div>
+						<p>{{ bounty?.metas?.place?.formatted_address }}</p>
+					</div>
 
 					<!-- Added place photos gallery -->
 					<div class="place-photos mt-4">
@@ -148,6 +142,25 @@
 		const bountyId = route.params.id;
 		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
 		bounty.value = bountyData.data;
+
+		// setup a google map
+		const map = new google.maps.Map(document.getElementById('map'), {
+			center: {
+				lat: bounty.value?.metas?.place?.geometry?.location?.lat,
+				lng: bounty.value?.metas?.place?.geometry?.location?.lng,
+			},
+			zoom: 15,
+		});
+
+		// add a marker to the map
+		new google.maps.Marker({
+			position: {
+				lat: bounty.value?.metas?.place?.geometry?.location?.lat,
+				lng: bounty.value?.metas?.place?.geometry?.location?.lng,
+			},
+			map: map,
+			title: bounty.value?.metas?.placeName,
+		});
 	});
 </script>
 
@@ -271,7 +284,13 @@
 								top: 0.015em
 
 			.bounty-description
-				padding: 3rem
+				padding: 2rem
+
+				.map
+					background: #EEE
+					height: 300px
+					border-radius: 0.5rem
+					margin-bottom: 1rem
 
 				h4
 					font-weight: 900
@@ -285,11 +304,33 @@
 					gap: 0.5rem
 
 					.photo-item
-						flex-basis: calc((100% / 3) - (1.5rem / 3))
+						flex-basis: calc((100% / 4) - (1.5rem / 4))
 						flex-shrink: 0
+						aspect-ratio: 1
+						overflow: hidden
+						border-radius: 0.5rem
+
+						&:hover
+							.photo-attribution
+								bottom: 0
+
+						.photo-attribution
+							position: absolute
+							bottom: -100px
+							width: 100%
+							z-index: 2
+							left: 0
+							background: rgba(black, 0.5)
+							padding: 0.5rem
+							transition: bottom 0.3s
+
+							:deep(a)
+								color: white
+								text-decoration: none
 
 						img
-							aspect-ratio: 1.5
+							aspect-ratio: 1
 							object-fit: cover
+							z-index: 1
 
 </style>

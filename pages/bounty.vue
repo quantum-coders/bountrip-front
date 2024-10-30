@@ -67,8 +67,10 @@
 
 <script setup>
 	definePageMeta({layout: 'bountrip'});
+
 	const bounty = ref(null);
 	const route = useRoute();
+
 	onMounted(async () => {
 		const bountyId = route.params.id;
 		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
