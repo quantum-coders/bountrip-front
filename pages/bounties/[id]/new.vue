@@ -59,12 +59,17 @@
 							</div>
 						</article>
 					</template>
-
-					<button class="btn btn-primary"
-							@click="createPlan()"
-					>Submit Plan
-					</button>
-
+						<button class="btn btn-primary"
+								@click="createPlan"
+								:disabled="loading"
+						>
+							<span v-if="loading">Submitting..</span>
+							<span v-else>Submit Plan</span>
+						</button>
+						<div v-if="showTransaction" class="alert alert-success mt-3">
+							Plan submitted successfully! <a :href="'https://explorer.testnet.near.org/transactions/' + txHash"
+														   target="_blank">View Transaction</a>
+						</div>
 				</div>
 
 
@@ -97,6 +102,9 @@
 	definePageMeta({layout: 'bountrip'});
 
 	const places = ref([]);
+	const loading = ref(false);
+	const showTransaction = ref(false);
+	const txHash = ref('');
 	const bounty = ref(null);
 	const route = useRoute();
 	const map = ref(null);
@@ -208,8 +216,17 @@
 	});
 
 	const createPlan = async () => {
-		console.log('Creating a new plan');
-		await useNewPlanStore().createPlan();
+		try {
+			loading.value = true;
+			console.log('Creating a new plan');
+			const tx = await useNewPlanStore().createPlan();
+			txHash.value = tx.transaction.hash
+			showTransaction.value = true;
+		}catch (e) {
+			console.error('Error creating a new plan:', e);
+		}finally {
+			loading.value = false;
+		}
 	};
 </script>
 

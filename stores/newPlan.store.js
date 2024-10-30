@@ -24,8 +24,8 @@ export const useNewPlanStore = defineStore('newPlan', () => {
 			}
 		});
 		console.info('Plan created:', res);
-		await useWalletStore().participateInBounty(res.data.bounty.idOnChain)
-		return res;
+		const tx = await useWalletStore().participateInBounty(res.data.bounty.idOnChain)
+		return tx;
 	}
 
 	return {

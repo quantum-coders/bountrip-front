@@ -27,7 +27,9 @@
 						</span>
 					</p>
 
-					<a href="#" class="btn btn-primary w-100">Submit your plan</a>
+					<nuxt-link
+						:to="`/bounties/${bounty.id}/new`"
+						class="btn btn-primary w-100">Submit your plan</nuxt-link>
 				</aside>
 
 				<div class="bounty-description">

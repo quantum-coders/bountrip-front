@@ -58,7 +58,9 @@
 							<span>{{ bounty?.status }}</span>
 						</div>
 
-						<button href="#" class="btn btn-primary w-100" :disabled="!bounty?.isActive">
+						<button href="#" class="btn btn-primary w-100" :disabled="!bounty?.isActive"
+							@click="goToBountySubmission(bounty)"
+						>
 							{{ bounty?.isActive ? 'Submit your plan' : 'Bounty Closed' }}
 						</button>
 
@@ -137,6 +139,7 @@
 
 	const bounty = ref(null);
 	const route = useRoute();
+	const router = useRouter();
 
 	onMounted(async () => {
 		const bountyId = route.params.id;
@@ -162,6 +165,13 @@
 			title: bounty.value?.metas?.placeName,
 		});
 	});
+
+	const goToBountySubmission = (bounty) => {
+		if (bounty.isActive) {
+			router.push(`/bounties/${bounty.id}/new`);
+		}
+	};
+
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
