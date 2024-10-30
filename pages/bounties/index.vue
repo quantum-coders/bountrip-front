@@ -1,5 +1,5 @@
 <template>
-	<div class="bounties-wrapper flex-grow-1 flex-column d-flex">
+	<div class="bounties-wrapper flex-grow-1 flex-column d-flex mb-2">
 		<div class="container d-flex gap-2 flex-grow-1">
 			<div class="content">
 				<!-- Banner -->
@@ -120,17 +120,15 @@
 				</div>
 			</div>
 
-			<aside class="sidebar">
-				<!-- Contenido del Sidebar -->
+			<aside class="sidebar pt-2 pb-1">
+				<SidebarNotifications
+				/>
 			</aside>
 		</div>
 	</div>
 </template>
 
 <script setup>
-	import {ref, onMounted} from 'vue';
-	import {useRuntimeConfig} from '#imports';
-
 	// Estado de las Bounties
 	const bounties = ref([]);
 
@@ -198,7 +196,7 @@
 		flex-grow: 1
 
 	.sidebar
-		width: 450px
+		max-width: 450px
 		flex-shrink: 1
 		border-left: 1px solid #DDD
 

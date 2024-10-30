@@ -221,7 +221,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		try {
 
 			const payload = {
-				idNear: accountId,
+				idNear: accountId.value,
 				slug: bountyData.slug,
 				title: bountyData.title || '',
 				content: bountyData.content || '',
@@ -231,6 +231,8 @@ export const useWalletStore = defineStore('wallet', () => {
 				idBounty: bountyData.idBounty || null,
 				idOnChain: bountyData.idOnChain || null,
 			};
+
+			console.log('------_>upsertBounty payload:', payload);
 			const res = await $fetch(`${baseURL}/bounties/store`, {
 				method: 'POST',
 				body: payload
@@ -239,7 +241,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			return res.data;
 
 		} catch (error) {
-			console.error('Error upserting bounty:', error);
+			console.error('Error upserting bounty:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	}
@@ -254,7 +256,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties`, {
 				method: 'POST',
 				body: {
-					sender: accountId,
+					sender: accountId.value,
 					receiver: config.public.idContract,
 					prizes: bountyData.prizes,
 				},
@@ -293,7 +295,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties/${bountyId}/participate`, {
 				method: 'POST',
 				body: {
-					sender: accountId,
+					sender: accountId.value,
 					receiver: config.public.idContract,
 					bountyId: parseInt(bountyId),
 				},
@@ -325,7 +327,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties/interactions`, {
 				method: 'GET',
 				params: {
-					accountId: account.value?.accountId,
+					accountId: accountId.value,
 					contractId: 'quantum-coders.testnet',
 				},
 			});
@@ -357,7 +359,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties/${bountyId}/finalize`, {
 				method: 'POST',
 				body: {
-					sender: accountId,
+					sender: accountId.value,
 					receiver: config.public.idContract,
 					bountyId: parseInt(bountyId),
 					winners,
@@ -387,7 +389,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			}
 
 			// Crear una instancia de Account
-			const connectedAccount = await near.account(accountId);
+			const connectedAccount = await near.account(accountId.value);
 
 			// Obtener el balance
 			const balance = await connectedAccount.getAccountBalance();
