@@ -6,7 +6,9 @@
 			<!-- title for the plan -->
 			<div class="form-group mb-3">
 				<label class="form-label" for="title">Title for your plan</label>
-				<input id="title" class="form-control" type="text" placeholder="Enter the title of your plan" />
+				<input id="title" class="form-control" type="text" placeholder="Enter the title of your plan"
+					   v-model="planData.title"
+				/>
 			</div>
 
 			<div class="plan-section d-flex flex-grow-1 gap-2">
@@ -20,14 +22,14 @@
 							placeholder="Search for a place"
 							@place-changed="addPlace"
 						/>
-						<icon name="material-symbols:search-rounded" />
+						<icon name="material-symbols:search-rounded"/>
 					</div>
 
 					<template v-for="p in places">
 						<article class="place" @click="focusPlace(p)">
 
 							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt="">
-							<div v-else class="place-thumb" />
+							<div v-else class="place-thumb"/>
 
 							<div class="place-info">
 								<div class="place-category">{{ changeCase.capitalCase(p.types[0]) }}</div>
@@ -35,7 +37,7 @@
 								<h4 class="place-title mb-0">{{ p.name }}</h4>
 								<p class="d-flex align-items-center gap-2 mb-0">
 									<span v-if="p.rating">
-										<plan-rating :rating="p.rating" />
+										<plan-rating :rating="p.rating"/>
 									</span>
 									<span class="reviews" v-if="p.reviews">
 										{{ p.reviews.length }} review{{ p.reviews.length > 1 ? 's' : '' }}
@@ -57,7 +59,14 @@
 							</div>
 						</article>
 					</template>
+
+					<button class="btn btn-primary"
+							@click="createPlan()"
+					>Submit Plan
+					</button>
+
 				</div>
+
 
 				<aside class="plan-sidebar">
 
@@ -69,10 +78,11 @@
 							class="form-control"
 							rows="5"
 							placeholder="Give a little description for your plan"
+							v-model="planData.description"
 						></textarea>
 					</div>
 
-					<div class="map" id="map" />
+					<div class="map" id="map"/>
 
 				</aside>
 			</div>
@@ -82,14 +92,19 @@
 
 <script setup>
 	import * as changeCase from 'change-case';
+	import {useNewPlanStore} from "~/stores/newPlan.store.js";
 
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
 
 	const places = ref([]);
 	const bounty = ref(null);
 	const route = useRoute();
 	const map = ref(null);
-
+	const planData = ref({
+		title: '',
+		description: '',
+		places: []
+	});
 	const addPlace = (place) => {
 
 		// remove value to #places
@@ -124,9 +139,32 @@
 		});
 
 		places.value.push(place);
+		planData.value.places.push({
+			placeId: place.place_id,
+			placeName: place.name,
+			placeAddress: place.formatted_address,
+			placeCategory: place.types[0],
+			placeRating: place.rating,
+			placeReviews: place.reviews,
+			placePhotos: place.photos,
+			placePriceLevel: place.price_level,
+			placeComment: ''
+		});
 
 		boundMap();
+
+
 	};
+
+	watch(planData, (newValue) => {
+		useNewPlanStore().plan = {
+			...useNewPlanStore().plan,
+			title: newValue.title,
+			description: newValue.description,
+			places: newValue.places
+		};
+
+	}, {deep: true});
 
 	const focusPlace = (place) => {
 		place.infoWindow.open(map.value, place.marker);
@@ -137,7 +175,7 @@
 				p.infoWindow.close();
 			}
 		});
-		
+
 		boundMap();
 	};
 
@@ -164,7 +202,15 @@
 			},
 			zoom: 15,
 		});
+
+		useNewPlanStore().plan.idBounty = bountyId;
+
 	});
+
+	const createPlan = async () => {
+		console.log('Creating a new plan');
+		await useNewPlanStore().createPlan();
+	};
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
