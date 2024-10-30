@@ -24,7 +24,7 @@
 					</div>
 
 					<template v-for="p in places">
-						<article class="place">
+						<article class="place" @click="focusPlace(p)">
 
 							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt="">
 							<div v-else class="place-thumb" />
@@ -86,23 +86,81 @@
 	definePageMeta({ layout: 'bountrip' });
 
 	const places = ref([]);
+	const bounty = ref(null);
+	const route = useRoute();
+	const map = ref(null);
 
 	const addPlace = (place) => {
-		places.value.push(place);
 
 		// remove value to #places
 		setTimeout(() => {
 			document.querySelector('.search input').value = '';
 		}, 10);
+
+		// add marker to the map
+		place.marker = new google.maps.Marker({
+			position: place.geometry.location,
+			map: map.value,
+			title: place.name,
+		});
+
+		// Add an info window to the marker
+		place.infoWindow = new google.maps.InfoWindow({
+			content: `
+				<h4>${place.name}</h4>
+				<p>${place.formatted_address}</p>
+			`,
+		});
+
+		place.marker.addListener('click', () => {
+			place.infoWindow.open(map.value, place.marker);
+
+			// close all the other info windows
+			places.value.forEach((p) => {
+				if (p.infoWindow && p.infoWindow !== place.infoWindow) {
+					p.infoWindow.close();
+				}
+			});
+		});
+
+		places.value.push(place);
+
+		boundMap();
 	};
 
-	onMounted(() => {
+	const focusPlace = (place) => {
+		place.infoWindow.open(map.value, place.marker);
+
+		//close all the other info windows
+		places.value.forEach((p) => {
+			if (p.infoWindow && p.infoWindow !== place.infoWindow) {
+				p.infoWindow.close();
+			}
+		});
+		
+		boundMap();
+	};
+
+	// function to bound the map to the markers
+	const boundMap = () => {
+		const bounds = new google.maps.LatLngBounds();
+		places.value.forEach((place) => {
+			bounds.extend(place.marker.getPosition());
+		});
+		map.value.fitBounds(bounds);
+	};
+
+	onMounted(async () => {
+
+		const bountyId = route.params.id;
+		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
+		bounty.value = bountyData.data;
 
 		// setup a google map
-		const map = new google.maps.Map(document.getElementById('map'), {
+		map.value = new google.maps.Map(document.getElementById('map'), {
 			center: {
-				lat: 19.487037542176687,
-				lng: -99.26139595311078
+				lat: bounty.value?.metas?.place?.geometry?.location?.lat,
+				lng: bounty.value?.metas?.place?.geometry?.location?.lng,
 			},
 			zoom: 15,
 		});
