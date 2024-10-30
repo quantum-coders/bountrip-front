@@ -3,14 +3,6 @@ import { defineStore } from 'pinia';
 import { keyStores, utils, transactions, WalletConnection, Near } from 'near-api-js';
 import { setupWalletSelector } from '@near-wallet-selector/core';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
-import { setupSender } from '@near-wallet-selector/sender';
-import { setupNearFi } from '@near-wallet-selector/nearfi';
-import { setupHereWallet } from '@near-wallet-selector/here-wallet';
-import { setupMathWallet } from '@near-wallet-selector/math-wallet';
-import { setupNightlyConnect } from '@near-wallet-selector/nightly-connect';
-import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
-import { setupLedger } from '@near-wallet-selector/ledger';
-import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 
 export const useWalletStore = defineStore('wallet', () => {
@@ -37,6 +29,7 @@ export const useWalletStore = defineStore('wallet', () => {
 	const activeBounties = computed(() =>
 		bounties.value.filter(bounty => bounty.isActive),
 	);
+
 	onMounted(() => {
 		try {
 			const data = localStorage.getItem('near_app_wallet_auth_key');
@@ -58,14 +51,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		explorerUrl: 'https://explorer.testnet.near.org',
 	};
 	const near = new Near(connectionConfig);
-	const nightlyConnect = setupNightlyConnect({
-		appMetadata: {
-			application: 'NEAR Wallet Selector',
-			description: 'Bountrip',
-			additionalInfo: 'Get ready to participate in bounties!',
-			icon: 'https://s3.coinmarketcap.com/static-gravity/image/ef3ad80e423a4449ab8e961b0d1edea4.png',
-		},
-	});
 
 	const initialize = async () => {
 		console.info('[Paso 0] Inicializando...');
@@ -83,14 +68,6 @@ export const useWalletStore = defineStore('wallet', () => {
 				fallbackRpcUrls: [ connectionConfig.nodeUrl ],
 				modules: [
 					setupMyNearWallet(),
-					setupSender(),
-					setupNearFi(),
-					setupHereWallet(),
-					setupMathWallet(),
-					nightlyConnect,
-					setupMeteorWallet(),
-					setupLedger(),
-					setupCoin98Wallet(),
 				],
 			});
 

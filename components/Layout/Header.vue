@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-	import { Waypoint } from "vue-waypoint";
+	import { Waypoint } from 'vue-waypoint';
 
 	const props = defineProps({
 		home: {
@@ -39,7 +39,7 @@
 	const sticky = ref(false);
 
 	const headerWaypoint = (state) => {
-		sticky.value = state.going === "OUT";
+		sticky.value = state.going === 'OUT';
 	};
 
 </script>

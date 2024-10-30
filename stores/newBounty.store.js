@@ -62,6 +62,7 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 			...createdBounty,
 		});
 	}
+
 	return {
 		tags,
 		bounty,

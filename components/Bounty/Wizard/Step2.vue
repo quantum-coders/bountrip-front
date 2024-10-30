@@ -3,7 +3,7 @@
 		<h2>When are you going?</h2>
 
 		<div class="date-picker-wrapper">
-			<project-date-picker v-model="newBounty.bounty.selectedDate" :disabledFromTo="disabledFromTo" btnCancelClass="d-none" />
+			<!--<project-date-picker v-model="newBounty.bounty.selectedDate" :disabledFromTo="disabledFromTo" btnCancelClass="d-none" />-->
 		</div>
 	</div>
 </template>
