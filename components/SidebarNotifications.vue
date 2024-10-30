@@ -1,114 +1,153 @@
 <template>
-	<div v-if="show">
-		<!-- Backdrop -->
-		<div
-			class="modal-backdrop fade show"
-			@click="closeSidebar"
-		></div>
+	<div class="transaction-sidebar bg-white shadow-sm rounded-3 p-4 w-100 d-flex flex-column">
+		<!-- Header -->
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h5 class="fw-bold m-0">Transaction History</h5>
+			<span class="badge bg-primary rounded-pill">{{ interactions.length }}</span>
+		</div>
 
-		<!-- Offcanvas Sidebar -->
-		<div
-			class="offcanvas offcanvas-end show"
-			tabindex="-1"
-			aria-labelledby="interactionsSidebarLabel"
-			style="visibility: visible; width: 350px;"
-		>
-			<div class="offcanvas-header">
-				<h5 class="offcanvas-title" id="interactionsSidebarLabel">
-					Transaction History
-				</h5>
-				<button
-					type="button"
-					class="btn-close text-reset"
-					@click="closeSidebar"
-					aria-label="Close"
-				></button>
-			</div>
-			<div class="offcanvas-body">
-				<div class="list-group">
-					<div
-						v-for="(interaction, index) in interactions"
-						:key="index"
-						class="list-group-item list-group-item-action"
-					>
-						<div class="d-flex w-100 justify-content-between">
-							<h6 class="mb-1">{{ getActionTitle(interaction) }}</h6>
-							<small class="text-muted">{{ formatTimestamp(interaction.block_timestamp) }}</small>
-						</div>
-						<p class="mb-1">{{ getActionDescription(interaction) }}</p>
-						<small>
-							<a
-								:href="`https://explorer.${networkId}.near.org/transactions/${interaction.transaction_hash}`"
-								target="_blank"
-								rel="noopener"
-							>
-								Ver transacción
-							</a>
-						</small>
-					</div>
+		<!-- Transaction List with Custom Scroll -->
+		<div class="transaction-list custom-scrollbar flex-grow-1">
+			<div
+				v-for="(interaction, index) in interactions"
+				:key="index"
+				class="transaction-item bg-light rounded p-3 mb-3 hover-shadow transition w-100"
+			>
+				<!-- Transaction Header -->
+				<div class="d-flex justify-content-between align-items-start mb-2">
+					<h6 class="fw-semibold text-primary mb-0">
+						{{ getActionTitle(interaction) }}
+					</h6>
 				</div>
+				<div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted small">
+					{{ formatTimestamp(interaction.block_timestamp) }}
+                </span>
+				</div>
+
+				<!-- Transaction Description -->
+				<p class="text-secondary mb-2 small">
+					{{ getActionDescription(interaction) }}
+				</p>
+
+				<!-- Transaction Details -->
+				<div v-if="getActionDetails(interaction)" class="bg-white rounded p-2 mb-2 small">
+					<pre class="m-0">{{ getActionDetails(interaction) }}</pre>
+				</div>
+
+				<!-- Transaction Link -->
+				<a
+					:href="`https://explorer.${networkId}.near.org/transactions/${interaction.transaction_hash}`"
+					class="btn btn-link btn-sm text-decoration-none p-0"
+					target="_blank"
+					rel="noopener"
+				>
+					View Transaction
+					<i class="bi bi-box-arrow-up-right ms-1"></i>
+				</a>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-
-	// Props para controlar la visibilidad del sidebar
-	const props = defineProps({
-		show: {
-			type: Boolean,
-			default: false,
-		},
-	});
-
-	// Emitimos eventos al componente padre
 	const emit = defineEmits(['close']);
-
-	// Función para cerrar el sidebar
-	const closeSidebar = () => {
-		emit('close');
-	};
-
-	// Accedemos al store
 	const walletStore = useWalletStore();
-
-	// Accedemos a interactionsData desde el store
 	const interactions = computed(() => walletStore.interactionsData);
-
-	// Obtenemos el networkId (por ejemplo, 'testnet' o 'mainnet')
 	const networkId = process.env.NETWORK_ID || 'testnet';
 
-	// Función para formatear la marca de tiempo
+	// Format timestamp to relative time
 	const formatTimestamp = (timestamp) => {
-		const date = new Date(parseInt(timestamp) / 1e6); // Convertir nanosegundos a milisegundos
-		return date.toLocaleString();
+		const milliseconds = Number(BigInt(timestamp) / 1000000n);
+		const date = new Date(milliseconds);
+		const options = {year: 'numeric', month: 'long', day: 'numeric'};
+		const formattedDate = date.toLocaleDateString(undefined, options);
+		const formattedTime = date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+		return `${formattedDate} ${formattedTime}`;
 	};
-
-	// Función para obtener el título de la acción
+	// Get human-readable title for the action
 	const getActionTitle = (interaction) => {
-		if (interaction.actions && interaction.actions.length > 0) {
-			const action = interaction.actions[0];
-			// Reemplazar guiones bajos y capitalizar
-			return action.action.replace(/_/g, ' ').toUpperCase();
-		}
-		return 'Acción';
+		if (!interaction.actions?.[0]) return 'Transaction';
+
+		const action = interaction.actions[0];
+		const method = action.method;
+
+		const titles = {
+			create_bounty: 'Created New Bounty',
+			participate: 'Participated in Bounty',
+			finalize_bounty: 'Finalized Bounty',
+			get_bounty: 'Viewed Bounty',
+			get_all_bounties: 'Viewed All Bounties',
+			get_participant_bounties: 'Viewed Participant Bounties',
+			get_creator_bounties: 'Viewed Creator Bounties'
+		};
+
+		return titles[method] || 'Contract Interaction';
 	};
 
-	// Función para obtener la descripción de la acción
+	// Get human-readable description for the action
 	const getActionDescription = (interaction) => {
-		if (interaction.actions && interaction.actions.length > 0) {
-			const action = interaction.actions[0];
-			let description = '';
-			if (action.method) {
-				description += `Método: ${action.method}`;
-			}
-			if (action.args) {
-				description += ` | Args: ${action.args}`;
-			}
-			return description;
+		if (!interaction.actions?.[0]) return '';
+
+		const action = interaction.actions[0];
+		const method = action.method;
+		const args = action.args ? JSON.parse(action.args) : {};
+
+		switch (method) {
+			case 'create_bounty':
+				const totalPrize = args.prizes?.reduce((sum, prize) => sum + BigInt(prize), BigInt(0));
+				return `Created a new bounty with ${args.prizes?.length || 0} prizes totaling ${formatNearAmount(totalPrize)} NEAR`;
+
+			case 'participate':
+				return `Joined bounty #${args.bountyId}`;
+
+			case 'finalize_bounty':
+				return `Finalized bounty #${args.bountyId} with ${args.winners?.length || 0} winners`;
+
+			case 'get_bounty':
+				return `Viewed details for bounty #${args.bountyId}`;
+
+			case 'get_participant_bounties':
+				return `Viewed bounties for participant: ${args.participantId}`;
+
+			case 'get_creator_bounties':
+				return `Viewed bounties created by: ${args.creatorId}`;
+
+			default:
+				return `Interacted with contract method: ${method}`;
 		}
-		return '';
+	};
+
+	// Get detailed information about the transaction
+	const getActionDetails = (interaction) => {
+		if (!interaction.actions?.[0]) return null;
+
+		const action = interaction.actions[0];
+		const args = action.args ? JSON.parse(action.args) : {};
+
+		switch (action.method) {
+			case 'create_bounty':
+				return args.prizes?.map((prize, index) =>
+					`Prize ${index + 1}: ${formatNearAmount(prize)} NEAR`
+				).join('\n');
+
+			case 'finalize_bounty':
+				return args.winners?.map((winner, index) =>
+					`Winner ${index + 1}: ${winner}`
+				).join('\n');
+
+			default:
+				return null;
+		}
+	};
+
+	// Helper function to format NEAR amounts
+	const formatNearAmount = (amount) => {
+		try {
+			return (BigInt(amount) / BigInt(1e24)).toString();
+		} catch {
+			return '0';
+		}
 	};
 
 	onMounted(() => {
@@ -116,30 +155,59 @@
 	});
 </script>
 
+
 <style scoped>
-	/* No se utiliza CSS personalizado; se confía en las clases de Bootstrap */
-
-	/* Asegúrate de que el offcanvas esté visible y en el lado derecho */
-	.offcanvas {
-		position: fixed;
-		top: 0;
-		bottom: 0;
-		right: 0;
-		background-color: #fff;
+	/* Custom scrollbar styling */
+	.custom-scrollbar {
+		height: calc(100vh - 120px); /* Adjust based on your needs */
 		overflow-y: auto;
-		z-index: 1050;
-		outline: 0;
+		overflow-x: hidden;
+		padding-right: 6px;
 	}
 
-	.modal-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
+	/* Webkit browsers (Chrome, Safari, newer Edge) */
+	.custom-scrollbar::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-track {
+		background: #f1f1f1;
+		border-radius: 10px;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background: #c1c1c1;
+		border-radius: 10px;
+		transition: background 0.3s ease;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+		background: #a8a8a8;
+	}
+
+	/* Firefox */
+	.custom-scrollbar {
+		scrollbar-width: thin;
+		scrollbar-color: #c1c1c1 #f1f1f1;
+	}
+
+	/* Animation and hover effects */
+	.hover-shadow:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	}
+
+	.transition {
+		transition: all 0.3s ease;
+	}
+
+	/* Ensure full width */
+	.transaction-sidebar {
+		min-height: 100vh;
+		max-width: 100%;
+	}
+
+	.transaction-item {
 		width: 100%;
-		height: 100%;
-		background-color: rgba(0, 0, 0, 0.5);
-		z-index: 1040;
 	}
-
-	/* Opcional: Puedes agregar estilos adicionales si es necesario */
 </style>
