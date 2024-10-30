@@ -6,7 +6,8 @@
 				<div class="banner">
 					<div class="banner-info">
 						<h4>Earn money<br>sharing your trip tips</h4>
-						<p class="mb-2">Design the ultimate travel plan for a fellow adventurer and earn NEAR rewards!</p>
+						<p class="mb-2">Design the ultimate travel plan for a fellow adventurer and earn NEAR
+							rewards!</p>
 						<p class="mb-0"><a href="#" class="btn btn-primary btn-sm px-4">Sign up</a></p>
 					</div>
 				</div>
@@ -22,7 +23,7 @@
 </template>
 
 <script setup>
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->

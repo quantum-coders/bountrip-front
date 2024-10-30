@@ -62,45 +62,50 @@
 </template>
 
 <script setup>
-	const emit = defineEmits([ 'bountyCreated' ]);
-	const walletStore = useWalletStore();
-	const bountyData = ref({ prizes: [ '' ] });
-	const isLoading = ref(false);
-	const showModal = ref(false);
+	const emit = defineEmits(['bountyCreated'])
+	const walletStore = useWalletStore()
+	const bountyData = ref({prizes: ['']})
+	const isLoading = ref(false)
+	const showModal = ref(false)
 
-	const addPrize = () => bountyData.value.prizes.push('');
+	const addPrize = () => bountyData.value.prizes.push('')
 	const removePrize = (index) => {
-		if(bountyData.value.prizes.length > 1) {
-			bountyData.value.prizes.splice(index, 1);
+		if (bountyData.value.prizes.length > 1) {
+			bountyData.value.prizes.splice(index, 1)
 		}
-	};
+	}
 
 	const showConfirmationModal = () => {
-		showModal.value = true;
-	};
+		showModal.value = true
+	}
 
 	const hideConfirmationModal = () => {
-		showModal.value = false;
-	};
+		showModal.value = false
+	}
 
 	const confirmCreateBounty = async () => {
 		try {
-			isLoading.value = true;
-			const prizes = bountyData.value.prizes.map((prize) => prize.trim());
-			if(prizes.some((prize) => isNaN(parseFloat(prize)))) {
-				throw new Error('All prizes must be valid numbers');
+			isLoading.value = true
+			const prizes = bountyData.value.prizes.map((prize) => prize.trim())
+			if (prizes.some((prize) => isNaN(parseFloat(prize)))) {
+				throw new Error('All prizes must be valid numbers')
 			}
-			const result = await walletStore.createBounty({ prizes });
-			alert('Bounty created successfully!');
-			bountyData.value.prizes = [ '' ];
-			emit('bountyCreated');
-		} catch(error) {
-			alert(error.message);
+			const stored = await walletStore.upsertBounty({})
+			const result = await walletStore.createBounty({prizes})
+			const upsert = await walletStore.upsertBounty({
+				idBounty: stored.id,
+			})
+
+			alert('Bounty created successfully!')
+			bountyData.value.prizes = ['']
+			emit('bountyCreated')
+		} catch (error) {
+			alert(error.message)
 		} finally {
-			isLoading.value = false;
-			hideConfirmationModal();
+			isLoading.value = false
+			hideConfirmationModal()
 		}
-	};
+	}
 </script>
 
 <style scoped></style>

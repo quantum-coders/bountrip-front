@@ -58,6 +58,10 @@
 	const nextStep = () => {
 
 		if(!canNextStep()) return;
+		if(newBounty.step === 5) {
+			newBounty.newBounty();
+			return;
+		}
 		newBounty.step++;
 	};
 </script>

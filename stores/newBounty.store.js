@@ -39,10 +39,34 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 		return bounty.value.selectedTags.includes(tag);
 	}
 
+	const newBounty = async () => {
+		const data = {
+			slug: `${bounty.value.title.toLowerCase().replace(/ /g, '-')}-${Date.now()}`,
+			metas: {
+				description: bounty.value.description,
+				place: bounty.value.place,
+				placeName: bounty.value.placeName,
+				placePhotos: bounty.value.placePhotos,
+				selectedDate: bounty.value.selectedDate,
+				tripType: bounty.value.tripType,
+				selectedTags: bounty.value.selectedTags,
+			},
+			title: bounty.value.title,
+			content: '',
+		}
+
+		const createdBounty = await useWalletStore().upsertBounty(data);
+		localStorage.setItem('idNewBounty', createdBounty.id);
+		const onChainCreatedBounty = await useWalletStore().createBounty({
+			prizes: bounty.value.prizes,
+			...createdBounty,
+		});
+	}
 	return {
 		tags,
 		bounty,
 		step,
+		newBounty,
 		startBounty,
 		toggleTag,
 		isActiveTag,

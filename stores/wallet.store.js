@@ -38,6 +38,8 @@ export const useWalletStore = defineStore('wallet', () => {
 		bounties.value.filter(bounty => bounty.isActive),
 	);
 
+	/// crtea a function to get from local storage near_app_wallet_auth_key and the value acount id: {"accountId":"john-milton.testnet","allKeys":["ed25519:HoXu4QTj6HgzBnvKWHdM1LFcbtzUSeAPAbfoJ2aePsbT"]}
+	const accountId = localStorage.getItem('near_app_wallet_auth_key') ? JSON.parse(localStorage.getItem('near_app_wallet_auth_key')).accountId : null;
 	const connectionConfig = {
 		networkId: 'testnet',
 		keyStore: new keyStores.BrowserLocalStorageKeyStore(),
@@ -206,6 +208,32 @@ export const useWalletStore = defineStore('wallet', () => {
 		}
 	};
 
+	const upsertBounty = async (bountyData) => {
+		try {
+
+			const payload = {
+				idNear: accountId,
+				slug: bountyData.slug,
+				title: bountyData.title || '',
+				content: bountyData.content || '',
+				status: bountyData.status || 'Active',
+				type: bountyData.type || 'Bounty',
+				metas: bountyData.metas || {},
+				idBounty: bountyData.idBounty || null,
+				idOnChain: bountyData.idOnChain || null,
+			};
+			const res = await $fetch(`${baseURL}/bounties/store`, {
+				method: 'POST',
+				body: payload
+			});
+
+			return res.data;
+
+		} catch (error) {
+			console.error('Error upserting bounty:', error);
+			throw error;
+		}
+	}
 	const createBounty = async (bountyData) => {
 		try {
 			if (!isConnected.value) {
@@ -217,7 +245,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties`, {
 				method: 'POST',
 				body: {
-					sender: account.value.accountId,
+					sender: accountId,
 					receiver: config.public.idContract,
 					prizes: bountyData.prizes,
 				},
@@ -228,42 +256,15 @@ export const useWalletStore = defineStore('wallet', () => {
 
 			// Usar las acciones directamente
 			const transactionResult = await wallet.value.signAndSendTransaction({
-				receiverId: transaction.receiverId,
-				actions: transaction.actions,
-			});
+					receiverId: transaction.receiverId,
+					actions: transaction.actions,
+				}
+			);
 			console.info('createBounty transactionResult: ', transactionResult);
 			const logMessage = transactionResult.receipts_outcome[0].outcome.logs.find(log => log.includes('Bounty'));
 			const bountyIdMatch = logMessage.match(/Bounty (\d+) created/);
 			const bountyId = bountyIdMatch ? bountyIdMatch[1] : null;
-
-			try {
-				const payload = {
-					idOnChain: bountyId,
-					idNear: account.value.accountId,
-					slug: `bounty-${bountyId}`,
-					title: bountyData.title || '',
-					content: bountyData.content || '',
-					status: 'Active',
-					type: 'Bounty',
-					metas: bountyData.metas || {},
-				};
-				const response = await  $fetch(`${baseURL}/bounties/store`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: payload,
-				});
-
-				console.info('createBounty response: ', response);
-				const parsedResult = response.data
-				console.info('createBounty parsedResult: ', parsedResult);
-				createdBounty = parsedResult.data.data
-			} catch (e) {
-				console.error('Error creating bounty:', e);
-			}
-
-			return {transactionResult, createdBounty};
+			return {transactionResult, bountyId};
 		} catch (error) {
 			console.error('Error creating bounty:', error);
 			throw error;
@@ -283,7 +284,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties/${bountyId}/participate`, {
 				method: 'POST',
 				body: {
-					sender: account.value.accountId,
+					sender: accountId,
 					receiver: config.public.idContract,
 					bountyId: parseInt(bountyId),
 				},
@@ -347,7 +348,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			const response = await $fetch(`${baseURL}/bounties/${bountyId}/finalize`, {
 				method: 'POST',
 				body: {
-					sender: account.value.accountId,
+					sender: accountId,
 					receiver: config.public.idContract,
 					bountyId: parseInt(bountyId),
 					winners,
@@ -377,7 +378,7 @@ export const useWalletStore = defineStore('wallet', () => {
 			}
 
 			// Crear una instancia de Account
-			const connectedAccount = await near.account(account.value.accountId);
+			const connectedAccount = await near.account(accountId);
 
 			// Obtener el balance
 			const balance = await connectedAccount.getAccountBalance();
@@ -419,7 +420,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		initialize,
 		connectWallet,
 		disconnectWallet,
-
 		// Funciones de bounties
 		fetchAllBounties,
 		fetchBounty,
@@ -429,5 +429,6 @@ export const useWalletStore = defineStore('wallet', () => {
 		participateInBounty,
 		finalizeBounty,
 		fetchInteractions,
+		upsertBounty,
 	};
 });

@@ -4,9 +4,9 @@
 			<div class="banner-info">
 
 				<div class="container d-flex flex-column">
-					<div class="shadow" />
+					<div class="shadow"/>
 					<h2>Looking for the best Tokyo adventure</h2>
-					<bounty-meta-info class="mb-0" />
+					<bounty-meta-info class="mb-0"/>
 				</div>
 			</div>
 		</div>
@@ -21,7 +21,7 @@
 						<small>Prize</small>
 						<span>
 							<span class="icon">
-								<icon name="simple-icons:near" />
+								<icon name="simple-icons:near"/>
 							</span>
 							50 NEAR
 						</span>
@@ -31,21 +31,30 @@
 				</aside>
 
 				<div class="bounty-description">
-					<p>Hey there, planning wizards! I'm looking for an awesome travel itinerary for a solo trip to Tokyo, and I’m calling all otaku and gaming experts for help. I’m in my 30s, so I’m looking for a plan that balances classic otaku experiences with some cool, more mature, under-the-radar spots. I’d love recommendations for must-visit anime and gaming hubs, lesser-known retro game stores, iconic arcades, anime museums, and even themed cafes that cater to serious fans.</p>
+					<p>Hey there, planning wizards! I'm looking for an awesome travel itinerary for a solo trip to
+						Tokyo, and I’m calling all otaku and gaming experts for help. I’m in my 30s, so I’m looking for
+						a plan that balances classic otaku experiences with some cool, more mature, under-the-radar
+						spots. I’d love recommendations for must-visit anime and gaming hubs, lesser-known retro game
+						stores, iconic arcades, anime museums, and even themed cafes that cater to serious fans.</p>
 
 					<h4>Details to Keep in Mind:</h4>
 					<ul>
 						<li>
-							<strong>Length of trip:</strong> 7 days, but I’m open to any amazing weekend spots nearby if they’re worth the trek.
+							<strong>Length of trip:</strong> 7 days, but I’m open to any amazing weekend spots nearby if
+							they’re worth the trek.
 						</li>
 						<li>
-							<strong>Budget:</strong> Mid-range. I’m up for a splurge or two on unforgettable experiences (think: private tours, exclusive merch, rare collector spots, etc.)
+							<strong>Budget:</strong> Mid-range. I’m up for a splurge or two on unforgettable experiences
+							(think: private tours, exclusive merch, rare collector spots, etc.)
 						</li>
 						<li>
-							<strong>Interests:</strong> Big into retro and new-gen gaming, anime collectibles, manga cafes, and Tokyo’s pop culture scene.
+							<strong>Interests:</strong> Big into retro and new-gen gaming, anime collectibles, manga
+							cafes, and Tokyo’s pop culture scene.
 						</li>
 						<li>
-							<strong>Extras:</strong> A few chill, scenic spots for unwinding between the action would be awesome, maybe some photogenic places that blend Tokyo’s traditional charm with otaku culture.
+							<strong>Extras:</strong> A few chill, scenic spots for unwinding between the action would be
+							awesome, maybe some photogenic places that blend Tokyo’s traditional charm with otaku
+							culture.
 						</li>
 					</ul>
 
@@ -57,7 +66,14 @@
 </template>
 
 <script setup>
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
+	const bounty = ref(null);
+	const route = useRoute();
+	onMounted(async () => {
+		const bountyId = route.params.id;
+		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
+		bounty.value = bountyData.data;
+	});
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
