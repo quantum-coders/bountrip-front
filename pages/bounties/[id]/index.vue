@@ -3,7 +3,7 @@
 		<div class="bounty-banner">
 			<div class="banner-info">
 				<div class="container d-flex align-items-end justify-content-between">
-					<div class="shadow" />
+					<div class="shadow"/>
 
 					<div class="info-container">
 						<h2>{{ bounty?.title }}</h2>
@@ -49,7 +49,7 @@
 							<small>{{ labels[i] }}</small>
 							<span>
 								<span class="icon">
-									<icon name="simple-icons:near" />
+									<icon name="simple-icons:near"/>
 								</span>
 								{{ p }} NEAR
 							</span>
@@ -106,7 +106,7 @@
 					<!-- Added place details -->
 					<div class="place-details">
 						<h4>Location Details</h4>
-						<div class="map" id="map" />
+						<div class="map" id="map"/>
 						<p>{{ bounty?.metas?.place?.formatted_address }}</p>
 					</div>
 
@@ -119,7 +119,7 @@
 								:key="index"
 								class="photo-item"
 							>
-								<img :src="photo.url" :alt="bounty?.metas?.placeName" />
+								<img :src="photo.url" :alt="bounty?.metas?.placeName"/>
 								<small class="photo-attribution" v-html="photo.attribution[0]"></small>
 							</div>
 						</div>
@@ -149,6 +149,12 @@
 					<h4 class="fw-bolder">Submissions</h4>
 					<p>Here are all the submissions the users have tailored for your trip. Enjoy!</p>
 
+					<div class="flex pb-3">
+						<bounty-winners
+							v-if="bounty.winners"
+						/>
+					</div>
+
 					<article class="plan" v-for="p in bounty.plans">
 						<h4 class="fw-bolder">{{ p.title }} <small>by {{ p.user.idNear }}</small></h4>
 						<p class="mb-0">{{ p.content }}</p>
@@ -164,18 +170,24 @@
 					<div class="text-end mb-4">
 						<p class="mb-0">Select a price for this Trip Plan</p>
 						<div class="prizes d-flex gap-2 justify-content-end">
-							<a class="select-prize-cta" v-for="(prize, i) in bounty.prizes" @click="selectedPlan.price = i">
-								<span class="position">{{ labels[i] }}</span>
+							<a
+								class="select-prize-cta"
+								v-for="(prize, i) in bounty.prizes"
+								:key="i"
+								@click="setWinner(i)"
+								:class="{ 'bg-primary text-white opacity-75': isWinnerSelected(i) }"
+							>
+							<span class="position">
+							  {{ labels[i] }}</span>
 								<small>{{ prize }} NEAR</small>
 							</a>
 						</div>
 					</div>
-
 					<h4 class="fw-bolder">
 						{{ selectedPlan.title }}
 						<small>by {{ selectedPlan.user.idNear }}</small>
 					</h4>
-					<p class="mb-5" v-html="nltobr(selectedPlan.content)" />
+					<p class="mb-5" v-html="nltobr(selectedPlan.content)"/>
 
 					<h4 class="fw-bolder mb-3">Recommended Places</h4>
 					<div class="" v-for="p in selectedPlan.metas.places">
@@ -200,7 +212,7 @@
 								<h4 class="place-title mb-0">{{ p.placeName }}</h4>
 								<p class="d-flex align-items-center gap-2 mb-0">
 									<span v-if="p.placeRating">
-										<plan-rating :rating="p.placeRating" />
+										<plan-rating :rating="p.placeRating"/>
 									</span>
 									<span class="reviews" v-if="p.placeReviews">
 										{{ p.placeReviews.length }} review{{ p.placeReviews.length > 1 ? 's' : '' }}
@@ -228,8 +240,9 @@
 </template>
 <script setup>
 	import * as changeCase from 'change-case';
+	import {useWinnersStore} from "~/stores/winnersBounty.store";
 
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
 
 	const bounty = ref(null);
 	const route = useRoute();
@@ -246,7 +259,10 @@
 	];
 
 	const mode = ref('bounty');
-
+	const isWinnerSelected = (position) => {
+		const winnersStore = useWinnersStore();
+		return winnersStore.winners && winnersStore.winners.some(winner => winner.position === position);
+	};
 	const canFinalize = (bounty) => {
 		return (
 			bounty.creator === useWalletStore().accountId &&
@@ -284,11 +300,20 @@
 			map: map,
 			title: bounty.value?.metas?.placeName,
 		});
+
+		useWinnersStore().numberOfWinners = bounty.value.prizes.length;
 	});
 
+	const setWinner = (index) => {
+		useWinnersStore().setWinner({
+			position: index,
+			idNear: selectedPlan.value.user.idNear,
+			idBounty: selectedPlan.value.idBounty,
+		})
+	}
 	const goToBountySubmission = (bounty) => {
-		if(bounty.value.isActive) {
-			router.push(`/bounties/${ bounty.id }/new`);
+		if (bounty.value.isActive) {
+			router.push(`/bounties/${bounty.id}/new`);
 		}
 	};
 
