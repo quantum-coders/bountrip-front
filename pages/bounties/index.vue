@@ -6,14 +6,15 @@
 				<div class="banner">
 					<div class="banner-info">
 						<h4>Earn money<br>sharing your trip tips</h4>
-						<p class="mb-2">Design the ultimate travel plan for a fellow adventurer and earn NEAR rewards!</p>
+						<p class="mb-2">Design the ultimate travel plan for a fellow adventurer and earn NEAR
+							rewards!</p>
 						<p class="mb-0"><a href="#" class="btn btn-primary btn-sm px-4">Sign up</a></p>
 					</div>
 				</div>
 
 				<div class="bounty-list">
 					<article class="bounty" v-for="i in 10">
-						<nuxt-link class="bounty-link" to="/bounty" />
+						<nuxt-link class="bounty-link" to="/bounty"/>
 
 						<div class="bounty-image">
 							<span class="bounty-prize">50 NEAR</span>
@@ -21,7 +22,7 @@
 						<div class="bounty-info">
 							<h4>Looking for the best Tokyo adventure</h4>
 							<p>Hello friends! I'm looking for the ultimate adventure in Japan.</p>
-							<bounty-meta-info class="mb-0" />
+							<bounty-meta-info class="mb-0"/>
 						</div>
 					</article>
 				</div>
@@ -34,7 +35,7 @@
 </template>
 
 <script setup>
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
