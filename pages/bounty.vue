@@ -161,48 +161,4 @@
 
 			.bounty-description
 				padding: 3rem
-
-			.shadow-left
-				width: 50px
-				position: absolute
-				margin-top: 25dvh
-				left: -50px
-				height: 100px
-				overflow: clip
-
-				&:before
-					filter: blur(10px)
-					opacity: 0.5
-					content: ''
-					position: absolute
-					width: 0
-					height: 0
-					right: 0
-					top: -10px
-					border-style: solid
-					border-width: 0 18px 58px 0
-					border-color: transparent #000000 transparent transparent
-					transform: rotate(0deg)
-
-			.shadow-right
-				width: 50px
-				position: absolute
-				margin-top: 25dvh
-				right: -50px
-				height: 100px
-				overflow: clip
-
-				&:before
-					filter: blur(10px)
-					opacity: 0.5
-					content: ''
-					position: absolute
-					width: 0
-					height: 0
-					left: 0
-					top: -10px
-					border-style: solid
-					border-width: 0 0 58px 18px
-					border-color: transparent transparent transparent #000000
-					transform: rotate(0deg)
 </style>

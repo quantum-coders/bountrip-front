@@ -1,139 +1,149 @@
 <template>
-    <div class="bounty-wrapper">
-       <div class="bounty-banner">
-          <div class="banner-info">
-             <div class="container d-flex flex-column">
-                <div class="shadow"/>
-                <h2>{{ bounty?.title }}</h2>
-                <bounty-meta-info class="mb-0"/>
-                <!-- Added tags section -->
-                <div class="tags-container mt-3">
-                   <span v-for="tag in bounty?.metas?.selectedTags" :key="tag" class="tag">
-                      {{ tag }}
-                   </span>
-                </div>
-                <!-- Added date range -->
-                <div class="date-range mt-2">
-                   <icon name="calendar" />
-                   <span>{{ new Date(bounty?.metas?.selectedDate[0]).toLocaleDateString() }} -
-                         {{ new Date(bounty?.metas?.selectedDate[1]).toLocaleDateString() }}</span>
-                </div>
-             </div>
-          </div>
-       </div>
+	<div class="bounty-wrapper">
+		<div class="bounty-banner">
+			<div class="banner-info">
+				<div class="container d-flex flex-column">
+					<div class="shadow" />
+					<h2>{{ bounty?.title }}</h2>
+					<bounty-meta-info class="mb-2" :bounty="bounty" />
+					<!-- Added tags section -->
+					<div class="tags-container mb-1">
+						<span v-for="tag in bounty?.metas?.selectedTags" :key="tag" class="tag">
+							{{ tag }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
 
-       <div class="container">
-          <div class="bounty-content">
-             <div class="shadow-left"></div>
-             <div class="shadow-right"></div>
+		<div class="container">
+			<div class="bounty-content">
+				<div class="shadow-left"></div>
+				<div class="shadow-right"></div>
 
-             <aside class="bounty-sidebar">
-                <p class="bounty-prize">
-                   <small>Prize</small>
-                   <span>
-                      <span class="icon">
-                         <icon name="simple-icons:near"/>
-                      </span>
-                      {{ Number(bounty?.totalPrize) / 1e24 }} NEAR
-                   </span>
-                </p>
+				<aside class="bounty-sidebar">
+					<div class="sidebar-content">
+						<!-- Added creator info -->
+						<div class="creator-info mb-3">
+							<div class="avatar"></div>
+							<div class="user">
+								<small>Created by</small>
+								<span class="fw-bolder text-brand2">{{ bounty?.creator }}</span>
+							</div>
+						</div>
 
-                <div class="location-info mb-3">
-                   <icon name="map-pin" />
-                   <span>{{ bounty?.metas?.placeName }}</span>
-                </div>
+						<p class="bounty-prize">
+							<small>Prize</small>
+							<span>
+								<span class="icon">
+									<icon name="simple-icons:near" />
+								</span>
+								{{ bounty?.totalPrize }} NEAR
+							</span>
+						</p>
 
-                <div class="trip-type mb-3">
-                   <icon name="user" />
-                   <span>{{ bounty?.metas?.tripType }} trip</span>
-                </div>
+						<div class="data-chunk location-info mb-3">
+							<small>Location</small>
+							<span>{{ bounty?.metas?.placeName }}</span>
+						</div>
 
-                <!-- Status indicator -->
-                <div class="status-badge mb-3" :class="bounty?.status.toLowerCase()">
-                   <icon name="circle" />
-                   <span>{{ bounty?.status }}</span>
-                </div>
+						<div class="data-chunk trip-type mb-3">
+							<small>Trip Type</small>
+							<span>{{ bounty?.metas?.tripType }} trip</span>
+						</div>
 
-                <a href="#" class="btn btn-primary w-100" :disabled="!bounty?.isActive">
-                   {{ bounty?.isActive ? 'Submit your plan' : 'Bounty Closed' }}
-                </a>
+						<!-- Status indicator -->
+						<div class="data-chunk status-badge mb-3" :class="bounty?.status.toLowerCase()">
+							<small>Status</small>
+							<span>{{ bounty?.status }}</span>
+						</div>
 
-                <!-- Added creator info -->
-                <div class="creator-info mt-3">
-                   <small>Created by</small>
-                   <span>{{ bounty?.creator }}</span>
-                </div>
+						<button href="#" class="btn btn-primary w-100" :disabled="!bounty?.isActive">
+							{{ bounty?.isActive ? 'Submit your plan' : 'Bounty Closed' }}
+						</button>
 
-                <!-- Added dates info -->
-                <div class="dates-info mt-3">
-                   <div>
-                      <small>Created:</small>
-                      <span>{{ new Date(bounty?.created).toLocaleDateString() }}</span>
-                   </div>
-                   <div>
-                      <small>Last Modified:</small>
-                      <span>{{ new Date(bounty?.modified).toLocaleDateString() }}</span>
-                   </div>
-                </div>
-             </aside>
+						<!-- Added dates info -->
+						<div class="dates-info mt-3">
+							<div class="row">
+								<div class="col-6">
+									<div class="data-chunk">
+										<small>Created:</small>
+										<span>{{ new Date(bounty?.created).toLocaleDateString() }}</span>
+									</div>
+								</div>
+								<div class="col-6">
+									<div class="data-chunk">
+										<small>Last Modified:</small>
+										<span>{{ new Date(bounty?.modified).toLocaleDateString() }}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</aside>
 
-             <div class="bounty-description">
-                <p>{{ bounty?.metas?.description }}</p>
+				<div class="bounty-description">
+					<!-- Added place details -->
+					<div class="place-details">
+						<h4>Location Details</h4>
+						<ul>
+							<li>
+								<strong>Address:</strong> {{ bounty?.metas?.place?.formatted_address }}
+							</li>
+							<li>
+								<strong>Location:</strong> {{ bounty?.metas?.place?.geometry?.location?.lat }},
+								{{ bounty?.metas?.place?.geometry?.location?.lng }}
+							</li>
+						</ul>
+					</div>
 
-                <!-- Added place photos gallery -->
-                <div class="place-photos mt-4">
-                   <h4>Location Photos</h4>
-                   <div class="photos-grid">
-                      <div v-for="(photo, index) in bounty?.metas?.placePhotos"
-                           :key="index"
-                           class="photo-item">
-                         <img :src="photo.url" :alt="bounty?.metas?.placeName" />
-                         <small class="photo-attribution" v-html="photo.attribution[0]"></small>
-                      </div>
-                   </div>
-                </div>
+					<h4>Bounty Description</h4>
+					<p>{{ bounty?.metas?.description }}</p>
 
-                <!-- Added place details -->
-                <div class="place-details mt-4">
-                   <h4>Location Details</h4>
-                   <ul>
-                      <li>
-                         <strong>Address:</strong> {{ bounty?.metas?.place?.formatted_address }}
-                      </li>
-                      <li>
-                         <strong>Location:</strong> {{ bounty?.metas?.place?.geometry?.location?.lat }},
-                         {{ bounty?.metas?.place?.geometry?.location?.lng }}
-                      </li>
-                   </ul>
-                </div>
+					<!-- Added place photos gallery -->
+					<div class="place-photos mt-4">
+						<h4>Location Photos</h4>
+						<div class="photos-grid">
+							<div
+								v-for="(photo, index) in bounty?.metas?.placePhotos"
+								:key="index"
+								class="photo-item"
+							>
+								<img :src="photo.url" :alt="bounty?.metas?.placeName" />
+								<small class="photo-attribution" v-html="photo.attribution[0]"></small>
+							</div>
+						</div>
+					</div>
 
-                <!-- Participants and winners sections if needed -->
-                <div v-if="bounty?.participants?.length > 0" class="participants mt-4">
-                   <h4>Participants</h4>
-                   <ul>
-                      <li v-for="participant in bounty?.participants" :key="participant">
-                         {{ participant }}
-                      </li>
-                   </ul>
-                </div>
+					<!-- Participants and winners sections if needed -->
+					<div v-if="bounty?.participants?.length > 0" class="participants mt-4">
+						<h4>Participants</h4>
+						<ul>
+							<li v-for="participant in bounty?.participants" :key="participant">
+								{{ participant }}
+							</li>
+						</ul>
+					</div>
 
-                <div v-if="bounty?.winners?.length > 0" class="winners mt-4">
-                   <h4>Winners</h4>
-                   <ul>
-                      <li v-for="winner in bounty?.winners" :key="winner">
-                         {{ winner }}
-                      </li>
-                   </ul>
-                </div>
-             </div>
-          </div>
-       </div>
-    </div>
+					<div v-if="bounty?.winners?.length > 0" class="winners mt-4">
+						<h4>Winners</h4>
+						<ul>
+							<li v-for="winner in bounty?.winners" :key="winner">
+								{{ winner }}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 <script setup>
-	definePageMeta({layout: 'bountrip'});
+	definePageMeta({ layout: 'bountrip' });
+
 	const bounty = ref(null);
 	const route = useRoute();
+
 	onMounted(async () => {
 		const bountyId = route.params.id;
 		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
@@ -183,6 +193,17 @@
 				h2
 					font-weight: 800
 
+				.tags-container
+					display: flex
+
+					.tag
+						font-size: 0.75rem
+						background: var(--brand2)
+						color: white
+						padding: 0.25rem 0.5rem
+						border-radius: 10rem
+						margin-right: 0.5rem
+
 		.bounty-content
 			margin-top: -25dvh
 			background: white
@@ -195,6 +216,30 @@
 				flex-shrink: 0
 				border-right: 1px solid #DDD
 				padding: 1rem
+
+				.sidebar-content
+					top: calc(64px + 1rem)
+					position: sticky
+
+				.data-chunk
+					small
+						color: #999
+						display: block
+
+				.creator-info
+					display: flex
+					align-items: center
+					gap: 0.5rem
+
+					.avatar
+						width: 50px
+						height: 50px
+						background: #DDD
+						border-radius: 50%
+
+					.user
+						small
+							display: block
 
 				.bounty-prize
 					font-size: 2rem
@@ -219,6 +264,7 @@
 							display: flex
 							align-items: center
 							justify-content: center
+							flex-shrink: 0
 
 							.iconify
 								font-size: 0.6em
@@ -227,47 +273,23 @@
 			.bounty-description
 				padding: 3rem
 
-			.shadow-left
-				width: 50px
-				position: absolute
-				margin-top: 25dvh
-				left: -50px
-				height: 100px
-				overflow: clip
+				h4
+					font-weight: 900
 
-				&:before
-					filter: blur(10px)
-					opacity: 0.5
-					content: ''
-					position: absolute
-					width: 0
-					height: 0
-					right: 0
-					top: -10px
-					border-style: solid
-					border-width: 0 18px 58px 0
-					border-color: transparent #000000 transparent transparent
-					transform: rotate(0deg)
+				img
+					max-width: 100%
 
-			.shadow-right
-				width: 50px
-				position: absolute
-				margin-top: 25dvh
-				right: -50px
-				height: 100px
-				overflow: clip
+				.photos-grid
+					display: flex
+					flex-wrap: wrap
+					gap: 0.5rem
 
-				&:before
-					filter: blur(10px)
-					opacity: 0.5
-					content: ''
-					position: absolute
-					width: 0
-					height: 0
-					left: 0
-					top: -10px
-					border-style: solid
-					border-width: 0 0 58px 18px
-					border-color: transparent transparent transparent #000000
-					transform: rotate(0deg)
+					.photo-item
+						flex-basis: calc((100% / 3) - (1.5rem / 3))
+						flex-shrink: 0
+
+						img
+							aspect-ratio: 1.5
+							object-fit: cover
+
 </style>
