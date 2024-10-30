@@ -68,10 +68,12 @@
 					</div>
 
 					<template v-for="p in places">
-						<article class="place" @click="focusPlace(p)">
+						<article class="place">
 
-							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt="">
-							<div v-else class="place-thumb" />
+							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt="" @click="focusPlace(p)">
+							<div v-else class="place-thumb" @click="focusPlace(p)">
+								<img src="/images/pattern-white.svg" alt="">
+							</div>
 
 							<div class="place-info">
 								<div class="place-category">{{ changeCase.capitalCase(p.types[0]) }}</div>

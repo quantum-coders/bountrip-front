@@ -29,25 +29,51 @@
 						</div>
 
 						<div class="bounty-info">
+							<div class="d-flex justify-content-end mb-2">
+								<span
+									class="badge"
+									:class="b.isActive ? 'bg-success' : 'bg-secondary'"
+								>{{ b.isActive ? 'Active' : 'Finished' }}</span>
+							</div>
+
 							<h4>
 								<nuxt-link :to="`/bounties/${b.id}`" class="text-decoration-none text-dark">
 									{{ b.title }}
 								</nuxt-link>
 							</h4>
 
-							<p>{{ b.metas.description }}</p>
+							<p class="bounty-description">{{ b.metas.description }}</p>
+
 							<bounty-meta-info
 								:metas="b.metas"
 								:created="b.created"
 								:participants="b.participants || []"
-								class="mb-0"
+								class="mb-2"
 							/>
-						</div>
 
-						<span
-							class="badge"
-							:class="b.isActive ? 'bg-success' : 'bg-secondary'"
-						>{{ b.isActive ? 'Active' : 'Finished' }}</span>
+							<!-- Botones de Acción -->
+							<div class="bounty-actions">
+								<button
+									v-if="canFinalize(b)"
+									@click="$emit('finalize', b)"
+									class="btn btn-primary btn-sm"
+								>
+									Finalize Bounty
+								</button>
+
+								<button
+									v-if="canParticipate(b)"
+									@click="participate(b)"
+									class="btn btn-warning btn-sm"
+								>
+									Submit Plan
+								</button>
+
+								<nuxt-link :to="`/bounties/${b.id}`" class="btn btn-secondary btn-sm">
+									View Bounty
+								</nuxt-link>
+							</div>
+						</div>
 
 						<!-- Botones de Toggle -->
 						<!--<div>
@@ -91,29 +117,6 @@
 									{{ winner }}
 								</li>
 							</ul>
-						</div>
-
-						<!-- Botones de Acción -->
-						<div class="bounty-actions">
-							<button
-								v-if="canFinalize(b)"
-								@click="$emit('finalize', b)"
-								class="btn btn-primary btn-sm"
-							>
-								Finalize Bounty
-							</button>
-
-							<button
-								v-if="canParticipate(b)"
-								@click="participate(b)"
-								class="btn btn-warning btn-sm"
-							>
-								Submit Plan
-							</button>
-
-							<nuxt-link :to="`/bounties/${b.id}`" class="btn btn-secondary btn-sm">
-								View Bounty
-							</nuxt-link>
 						</div>
 					</article>
 				</div>
@@ -274,6 +277,13 @@
 					margin-bottom: 0.25rem
 					font-weight: 900
 
+				.bounty-description
+					// 2 lines
+					display: -webkit-box
+					-webkit-line-clamp: 2
+					-webkit-box-orient: vertical
+					overflow: hidden
+
 				p
 					text-wrap: balance
 					margin-bottom: 0.5rem
@@ -281,15 +291,8 @@
 					&.meta
 						font-size: 0.75rem
 
-			.badge
-				position: absolute
-				right: 0.5rem
-				top: 0.5rem
-
 			.bounty-actions
-				position: absolute
-				bottom: 0.5rem
-				right: 0.5rem
 				display: flex
+				justify-content: flex-end
 				gap: 0.5rem
 </style>
