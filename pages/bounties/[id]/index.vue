@@ -2,20 +2,28 @@
 	<div class="bounty-wrapper" v-if="bounty">
 		<div class="bounty-banner">
 			<div class="banner-info">
-				<div class="container d-flex flex-column">
+				<div class="container d-flex align-items-end justify-content-between">
 					<div class="shadow" />
-					<h2>{{ bounty?.title }}</h2>
-					<bounty-meta-info
-						:metas="bounty.metas"
-						:created="bounty.created"
-						:participants="bounty.participants || []"
-						class="mb-2"
-					/>
-					<!-- Added tags section -->
-					<div class="tags-container mb-1">
-						<span v-for="tag in bounty?.metas?.selectedTags" :key="tag" class="tag">
-							{{ tag }}
-						</span>
+
+					<div class="info-container">
+						<h2>{{ bounty?.title }}</h2>
+						<bounty-meta-info
+							:metas="bounty.metas"
+							:created="bounty.created"
+							:participants="bounty.participants || []"
+							class="mb-2"
+						/>
+						<!-- Added tags section -->
+						<div class="tags-container mb-1">
+							<span v-for="tag in bounty?.metas?.selectedTags" :key="tag" class="tag">
+								{{ tag }}
+							</span>
+						</div>
+					</div>
+
+					<div class="actions d-flex align-items-center gap-2" v-if="canFinalize(bounty)">
+						<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
+						<a href="#" @click.prevent="mode = 'plans'" class="btn btn-primary">View submissions</a>
 					</div>
 				</div>
 			</div>
@@ -90,7 +98,7 @@
 					</div>
 				</aside>
 
-				<div class="bounty-description">
+				<div class="bounty-description" v-if="mode === 'bounty'">
 
 					<h4>Bounty Description</h4>
 					<p>{{ bounty?.metas?.description }}</p>
@@ -136,16 +144,98 @@
 						</ul>
 					</div>
 				</div>
+
+				<div v-else-if="mode === 'plans'" class="bounty-submissions">
+					<h4 class="fw-bolder">Submissions</h4>
+					<p>Here are all the submissions the users have tailored for your trip. Enjoy!</p>
+
+					<article class="plan" v-for="p in bounty.plans">
+						<h4 class="fw-bolder">{{ p.title }} <small>by {{ p.user.idNear }}</small></h4>
+						<p class="mb-0">{{ p.content }}</p>
+
+						<p class="text-end mb-0">
+							<a @click.prevent="viewPlan(p.id)" href="#" class="btn btn-primary">View trip plan</a>
+						</p>
+					</article>
+				</div>
+
+				<div v-else class="single-plan">
+
+					<div class="text-end mb-4">
+						<p class="mb-0">Select a price for this Trip Plan</p>
+						<div class="prizes d-flex gap-2 justify-content-end">
+							<a class="select-prize-cta" v-for="(prize, i) in bounty.prizes" @click="selectedPlan.price = i">
+								<span class="position">{{ labels[i] }}</span>
+								<small>{{ prize }} NEAR</small>
+							</a>
+						</div>
+					</div>
+
+					<h4 class="fw-bolder">
+						{{ selectedPlan.title }}
+						<small>by {{ selectedPlan.user.idNear }}</small>
+					</h4>
+					<p class="mb-5" v-html="nltobr(selectedPlan.content)" />
+
+					<h4 class="fw-bolder mb-3">Recommended Places</h4>
+					<div class="" v-for="p in selectedPlan.metas.places">
+						<article class="place">
+							<img
+								v-if="p.placePhotos"
+								class="place-thumb"
+								:src="p.placePhotos[0].url"
+								alt=""
+							>
+							<div v-else class="place-thumb">
+								<img src="/images/pattern-white.svg" alt="">
+							</div>
+
+							<div class="place-info">
+								<div
+									v-if="p.placeCategory"
+									class="place-category"
+								>{{ changeCase.capitalCase(p.placeCategory) }}
+								</div>
+
+								<h4 class="place-title mb-0">{{ p.placeName }}</h4>
+								<p class="d-flex align-items-center gap-2 mb-0">
+									<span v-if="p.placeRating">
+										<plan-rating :rating="p.placeRating" />
+									</span>
+									<span class="reviews" v-if="p.placeReviews">
+										{{ p.placeReviews.length }} review{{ p.placeReviews.length > 1 ? 's' : '' }}
+									</span>
+									<!--<span class="price-level">
+										<icon name="material-symbols:attach-money" v-for="i in p.price_level" />
+									</span>-->
+								</p>
+								<p>{{ p.placeAddress }}</p>
+
+								<!-- textarea for comments -->
+								<div class="form-group" v-if="p.placeComment">
+									<div
+										class="form-control"
+										v-html="p.placeComment"
+									/>
+								</div>
+							</div>
+						</article>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
+	import * as changeCase from 'change-case';
+
 	definePageMeta({ layout: 'bountrip' });
 
 	const bounty = ref(null);
 	const route = useRoute();
 	const router = useRouter();
+
+	const selectedPlan = ref(null);
 
 	const labels = [
 		'First Place',
@@ -155,10 +245,23 @@
 		'Fifth Place',
 	];
 
+	const mode = ref('bounty');
+
+	const canFinalize = (bounty) => {
+		return (
+			bounty.creator === useWalletStore().accountId &&
+			bounty.isActive &&
+			bounty.participants?.length > 0
+		);
+	};
+
 	onMounted(async () => {
 		const bountyId = route.params.id;
 		const bountyData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId);
 		bounty.value = bountyData.data;
+
+		const plansData = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + bountyId + '/plans');
+		bounty.value.plans = plansData.data;
 
 		// await 1 second for the bounty to be loaded
 		await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -184,10 +287,17 @@
 	});
 
 	const goToBountySubmission = (bounty) => {
-		if(bounty.isActive) {
+		if(bounty.value.isActive) {
 			router.push(`/bounties/${ bounty.id }/new`);
 		}
 	};
+
+	const viewPlan = (idPlan) => {
+		selectedPlan.value = bounty.value.plans.find((p) => p.id === idPlan);
+		mode.value = 'plan';
+	};
+
+	const nltobr = (text) => text.replace(/\n/g, '<br />');
 
 </script>
 
@@ -311,8 +421,13 @@
 								font-size: 0.6em
 								top: 0.015em
 
+			.bounty-submissions
+				padding: 2rem
+				flex-grow: 1
+
 			.bounty-description
 				padding: 2rem
+				flex-grow: 1
 
 				.map
 					background: #EEE
@@ -360,5 +475,87 @@
 							aspect-ratio: 1
 							object-fit: cover
 							z-index: 1
+
+	.plan
+		border: 1px solid #DDD
+		border-radius: 0.5rem
+		padding: 1rem
+		margin-bottom: 1rem
+
+		h4
+			font-size: 1.2rem
+
+			small
+				display: block
+				font-size: 0.8rem
+				color: var(--brand2)
+
+		&:last-child
+			margin-bottom: 0
+
+		&:hover
+			border-color: var(--brand2)
+
+	.single-plan
+		padding: 2rem
+		flex-grow: 1
+
+		.select-prize-cta
+			font-size: 1rem
+			background: var(--brand1)
+			border-radius: 100px
+			padding: 0.5rem 2rem
+			color: white
+			text-decoration: none
+			line-height: 1
+			cursor: pointer
+
+			&:hover
+				background: var(--brand2)
+
+			span
+				margin-bottom: 0
+
+			small
+				font-size: 0.75rem
+				display: flex
+
+		h4
+			small
+				display: block
+				font-size: 0.8rem
+				color: var(--brand2)
+
+		.place
+			display: flex
+			align-items: flex-start
+			gap: 1rem
+			flex-shrink: 0
+			margin-bottom: 1rem
+
+			.place-thumb
+				width: 100px
+				aspect-ratio: 1
+				border-radius: 0.5rem
+				background: #EEE
+
+			.place-info
+				flex-grow: 1
+
+				.place-category
+					font-size: 0.75rem
+					position: absolute
+					right: 0
+					top: 0
+					background: var(--brand2)
+					color: white
+					padding: 0.25rem 0.5rem
+					border-radius: 10rem
+
+				.place-title
+					font-size: 1.2rem
+
+				textarea
+					resize: none
 
 </style>
