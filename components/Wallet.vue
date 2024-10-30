@@ -44,6 +44,7 @@
 				}),
 			});
 			console.info("Connect respondes", connectRes.data.value.data);
+			useWalletStore().setAccountId();
 			loading.value = false;
 		}catch (e) {
 			console.error('Error initializing wallet', e);

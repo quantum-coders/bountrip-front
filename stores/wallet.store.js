@@ -30,7 +30,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		bounties.value.filter(bounty => bounty.isActive),
 	);
 
-	onMounted(() => {
+	const setAccountId = () => {
 		try {
 			const data = localStorage.getItem('near_app_wallet_auth_key');
 			if(data) {
@@ -40,7 +40,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		} catch(error) {
 			console.error('Error getting accountId from localStorage:', error);
 		}
-	});
+	}
 
 	const connectionConfig = {
 		networkId: 'testnet',
@@ -101,6 +101,7 @@ export const useWalletStore = defineStore('wallet', () => {
 				account.value = accounts[0];
 				isConnected.value = true;
 				wallet.value = await selector.value.wallet();
+				setAccountId();
 			}
 			await getAccountBalance();
 		} catch(error) {
@@ -195,7 +196,7 @@ export const useWalletStore = defineStore('wallet', () => {
 
 	const upsertBounty = async (bountyData) => {
 		try {
-
+			console.log("Validate accoundId exists" + accountId.value);
 			const payload = {
 				idNear: accountId.value,
 				slug: bountyData.slug,
@@ -393,6 +394,7 @@ export const useWalletStore = defineStore('wallet', () => {
 		interactionsData,
 		// Estado de bounties
 		bounties,
+		setAccountId,
 		currentBounty,
 		accountBalance,
 		getAccountBalance,
