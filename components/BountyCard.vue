@@ -81,6 +81,7 @@
 <script setup>
 	import {ref, computed} from 'vue'
 
+	const emit = defineEmits(['finalize', 'participate'])
 	const props = defineProps({
 		bounty: {
 			type: Object,
@@ -94,7 +95,6 @@
 
 	const bounty = props.bounty
 	const userAccountId = props.userAccountId
-
 	const showParticipants = ref(false)
 	const showWinners = ref(false)
 
@@ -123,6 +123,8 @@
 			bounty.participants?.length > 0
 		)
 	})
+
+
 </script>
 
 <style scoped>

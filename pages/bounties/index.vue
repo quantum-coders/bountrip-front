@@ -16,7 +16,9 @@
 				<!-- Lista de Bounties -->
 				<div class="bounty-list">
 					<template v-for="b in bounties" :key="b.id">
-						<bounty-card :bounty="b" />
+						<bounty-card :bounty="b"
+							@finalize="gotToBounty(b)"
+						/>
 					</template>
 				</div>
 			</div>
@@ -51,6 +53,10 @@
 			console.error('Error fetching bounties:', error);
 		}
 	});
+
+	const gotToBounty = (bounty) => {
+		useRouter().push(`/bounties/${ bounty.id }`);
+	};
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
