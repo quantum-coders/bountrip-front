@@ -3,7 +3,7 @@
 		<div class="bounty-banner">
 			<div class="banner-info">
 				<div class="container d-flex align-items-end justify-content-between">
-					<div class="shadow" />
+					<div class="shadow"/>
 
 					<div class="info-container">
 						<h2>{{ bounty?.title }}</h2>
@@ -24,7 +24,15 @@
 					<div class="actions d-flex align-items-center gap-2" v-if="canFinalize(bounty)">
 						<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
 						<a href="#" @click.prevent="mode = 'plans'" class="btn btn-secondary">View submissions</a>
-						<a href="#" class="btn btn-warning">Close Bounty</a>
+						<a
+							href="#"
+							class="btn btn-warning"
+							@click.prevent="closeBounty(bounty)"
+						>
+							<span v-if="loading" class="spinner-border spinner-border-sm" role="status"
+								  aria-hidden="true"></span>
+							<span v-else>Close Bounty</span>
+						</a>
 					</div>
 				</div>
 			</div>
@@ -50,7 +58,7 @@
 							<small>{{ labels[i] }}</small>
 							<span>
 								<span class="icon">
-									<icon name="simple-icons:near" />
+									<icon name="simple-icons:near"/>
 								</span>
 								{{ p }} NEAR
 							</span>
@@ -107,7 +115,7 @@
 					<!-- Added place details -->
 					<div class="place-details">
 						<h4>Location Details</h4>
-						<div class="map" id="map" />
+						<div class="map" id="map"/>
 						<p>{{ bounty?.metas?.place?.formatted_address }}</p>
 					</div>
 
@@ -120,7 +128,7 @@
 								:key="index"
 								class="photo-item"
 							>
-								<img :src="photo.url" :alt="bounty?.metas?.placeName" />
+								<img :src="photo.url" :alt="bounty?.metas?.placeName"/>
 								<small class="photo-attribution" v-html="photo.attribution[0]"></small>
 							</div>
 						</div>
@@ -148,7 +156,11 @@
 
 				<div v-else-if="mode === 'plans'" class="bounty-submissions">
 					<div class="mb-3">
-						<bounty-winners v-if="bounty.winners" />
+						<bounty-winners v-if="bounty.winners"/>
+						<bounty-transaction-hash
+							:show-transaction="showTransaction"
+							:tx-hash="txHash"
+						/>
 					</div>
 
 					<h4 class="fw-bolder">Submissions</h4>
@@ -197,7 +209,7 @@
 						{{ selectedPlan.title }}
 						<small>by {{ selectedPlan.user.idNear }}</small>
 					</h4>
-					<p class="mb-5" v-html="nltobr(selectedPlan.content)" />
+					<p class="mb-5" v-html="nltobr(selectedPlan.content)"/>
 
 					<h4 class="fw-bolder mb-3">Recommended Places</h4>
 					<div class="" v-for="p in selectedPlan.metas.places">
@@ -222,7 +234,7 @@
 								<h4 class="place-title mb-0">{{ p.placeName }}</h4>
 								<p class="d-flex align-items-center gap-2 mb-0">
 									<span v-if="p.placeRating">
-										<plan-rating :rating="p.placeRating" />
+										<plan-rating :rating="p.placeRating"/>
 									</span>
 									<span class="reviews" v-if="p.placeReviews">
 										{{ p.placeReviews.length }} review{{ p.placeReviews.length > 1 ? 's' : '' }}
@@ -251,14 +263,16 @@
 <script setup>
 	import * as changeCase from 'change-case';
 
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
 
 	const bounty = ref(null);
 	const route = useRoute();
 	const router = useRouter();
-
+	const loading = ref(false);
 	const selectedPlan = ref(null);
 	const winnerStore = useWinnersStore();
+	const showTransaction = ref(false);
+	const txHash = ref(null);
 
 	const labels = [
 		'First Place',
@@ -328,13 +342,13 @@
 			title: selectedPlan.value.title,
 			idPlan: selectedPlan.value.id,
 			idNear: selectedPlan.value.user.idNear,
-			idBounty: selectedPlan.value.idBounty,
+			idBounty: selectedPlan.value.idBounty
 		});
 	};
 	const goToBountySubmission = (bounty) => {
 		console.info('bounty', bounty);
-		if(bounty.isActive) {
-			router.push(`/bounties/${ bounty.id }/new`);
+		if (bounty.isActive) {
+			router.push(`/bounties/${bounty.id}/new`);
 		}
 	};
 
@@ -345,6 +359,21 @@
 
 	const nltobr = (text) => text.replace(/\n/g, '<br />');
 
+	const closeBounty = async (bounty) => {
+		try {
+			loading.value = true;
+			showTransaction.value = false;
+			txHash.value = null;
+			const tx = await useWinnersStore().finalizeBounty();
+			txHash.value = tx.transaction.hash;
+			showTransaction.value = true;
+
+		} catch (e) {
+			console.error('Error closing bounty:', e);
+		} finally {
+			loading.value = false;
+		}
+	};
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
