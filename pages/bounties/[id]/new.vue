@@ -32,7 +32,8 @@
 
 		<div class="container d-flex flex-grow-1 flex-column">
 
-			<div v-if="showTransaction" class="alert alert-success mt-3 d-flex align-items-center justify-content-between">
+			<div v-if="showTransaction"
+				 class="alert alert-success mt-3 d-flex align-items-center justify-content-between">
 				Plan submitted successfully!
 				<a
 					:href="'https://explorer.testnet.near.org/transactions/' + txHash"
@@ -64,24 +65,24 @@
 							placeholder="Search for a place"
 							@place-changed="addPlace"
 						/>
-						<icon name="material-symbols:search-rounded" />
+						<icon name="material-symbols:search-rounded"/>
 					</div>
 
 					<template v-for="p in places">
 						<article class="place">
 
-							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt="" @click="focusPlace(p)">
+							<img v-if="p.photos" class="place-thumb" :src="p.photos[0].url" alt=""
+								 @click="focusPlace(p)">
 							<div v-else class="place-thumb" @click="focusPlace(p)">
 								<img src="/images/pattern-white.svg" alt="">
 							</div>
 
 							<div class="place-info">
 								<div class="place-category">{{ changeCase.capitalCase(p.types[0]) }}</div>
-
 								<h4 class="place-title mb-0">{{ p.name }}</h4>
 								<p class="d-flex align-items-center gap-2 mb-0">
 									<span v-if="p.rating">
-										<plan-rating :rating="p.rating" />
+										<plan-rating :rating="p.rating"/>
 									</span>
 									<span class="reviews" v-if="p.reviews">
 										{{ p.reviews.length }} review{{ p.reviews.length > 1 ? 's' : '' }}
@@ -93,13 +94,21 @@
 								<p>{{ p.formatted_address }}</p>
 
 								<!-- textarea for comments -->
-								<div class="form-group">
+								<div class="form-group pb-3">
 									<textarea
 										class="form-control"
 										rows="3"
 										placeholder="Add a comment for this place"
 										v-model="p.comment"
 									/>
+								</div>
+								<div class="flex">
+								<span
+									class="align-content-end btn btn-sm btn-danger"
+									@click="places.splice(places.indexOf(p), 1)"
+								>
+										<icon name="mdi:delete"/>
+									</span>
 								</div>
 							</div>
 						</article>
@@ -120,7 +129,7 @@
 						></textarea>
 					</div>
 
-					<div class="map" id="map" />
+					<div class="map" id="map"/>
 
 				</aside>
 			</div>
@@ -130,9 +139,9 @@
 
 <script setup>
 	import * as changeCase from 'change-case';
-	import { useNewPlanStore } from '~/stores/newPlan.store.js';
+	import {useNewPlanStore} from '~/stores/newPlan.store.js';
 
-	definePageMeta({ layout: 'bountrip' });
+	definePageMeta({layout: 'bountrip'});
 
 	const places = ref([]);
 	const loading = ref(false);
@@ -163,8 +172,8 @@
 		// Add an info window to the marker
 		place.infoWindow = new google.maps.InfoWindow({
 			content: `
-				<h4>${ place.name }</h4>
-				<p>${ place.formatted_address }</p>
+				<h4>${place.name}</h4>
+				<p>${place.formatted_address}</p>
 			`,
 		});
 
@@ -173,7 +182,7 @@
 
 			// close all the other info windows
 			places.value.forEach((p) => {
-				if(p.infoWindow && p.infoWindow !== place.infoWindow) {
+				if (p.infoWindow && p.infoWindow !== place.infoWindow) {
 					p.infoWindow.close();
 				}
 			});
@@ -208,7 +217,7 @@
 			placePriceLevel: place.price_level,
 			placeComment: place.comment,
 		}));
-	}, { deep: true });
+	}, {deep: true});
 
 	watch(planData, (newValue) => {
 		useNewPlanStore().plan = {
@@ -218,14 +227,14 @@
 			places: newValue.places,
 		};
 
-	}, { deep: true });
+	}, {deep: true});
 
 	const focusPlace = (place) => {
 		place.infoWindow.open(map.value, place.marker);
 
 		//close all the other info windows
 		places.value.forEach((p) => {
-			if(p.infoWindow && p.infoWindow !== place.infoWindow) {
+			if (p.infoWindow && p.infoWindow !== place.infoWindow) {
 				p.infoWindow.close();
 			}
 		});
@@ -268,7 +277,7 @@
 			const tx = await useNewPlanStore().createPlan();
 			txHash.value = tx.transaction.hash;
 			showTransaction.value = true;
-		} catch(e) {
+		} catch (e) {
 			console.error('Error creating a new plan:', e);
 		} finally {
 			loading.value = false;

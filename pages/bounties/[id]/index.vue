@@ -312,7 +312,8 @@
 		})
 	}
 	const goToBountySubmission = (bounty) => {
-		if (bounty.value.isActive) {
+		console.info('bounty', bounty);
+		if (bounty.isActive) {
 			router.push(`/bounties/${bounty.id}/new`);
 		}
 	};
