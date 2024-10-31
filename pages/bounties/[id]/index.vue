@@ -31,8 +31,11 @@
 							class="btn btn-warning"
 							@click.prevent="closeBounty(bounty)"
 						>
-							<span v-if="loading" class="spinner-border spinner-border-sm" role="status"
-								  aria-hidden="true"></span>
+							<span v-if="loading"
+								class="disabled"
+							>
+								Closing...
+							</span>
 							<span v-else>Close Bounty</span>
 						</a></div>
 				</div>
