@@ -45,7 +45,7 @@ export const useWinnersStore = defineStore('winnersBounty', () => {
 		console.info('Bounty updated:', res);
 		const transaction = await useWalletStore().finalizeBounty(idBounty, winnersIdNear);
 		console.info('Bounty finalized:', transaction);
-		return transaction.transaction.hash;
+		return transaction
 	};
 
 	return {

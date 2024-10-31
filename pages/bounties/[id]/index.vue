@@ -367,6 +367,7 @@
 			showTransaction.value = false;
 			txHash.value = null;
 			const tx = await useWinnersStore().finalizeBounty();
+			console.info("tx------------>", tx);
 			txHash.value = tx.transaction.hash;
 			showTransaction.value = true;
 
