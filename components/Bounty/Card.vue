@@ -83,6 +83,28 @@
 		},
 	});
 
+	const participantsVisibility = ref({});
+	const winnersVisibility = ref({});
+
+	// Función para alternar la visibilidad de Participantes
+	const toggleParticipants = (id) => {
+		participantsVisibility.value[id] = !participantsVisibility.value[id];
+	};
+
+	// Función para alternar la visibilidad de Ganadores
+	const toggleWinners = (id) => {
+		winnersVisibility.value[id] = !winnersVisibility.value[id];
+	};
+
+	// Verificar si los Participantes están visibles
+	const isParticipantsVisible = (id) => {
+		return participantsVisibility.value[id];
+	};
+
+	const participate = (b) => {
+		useRouter().push(`/bounties/${ b.id }/new`);
+	};
+
 	const isWinnersVisible = (id) => {
 		return winnersVisibility.value[id];
 	};
@@ -108,28 +130,27 @@
 
 	.bounty
 		display: flex
+		align-items: stretch
 		border-radius: 0.5rem
 		overflow: clip
 		border: 1px solid var(--bs-border-color)
 		cursor: pointer
+		position: relative
 
 		&:hover
 			border-color: var(--brand2)
-
-		.bounty-link
-			@extend .absolute-full
-			z-index: 2
 
 		.bounty-image
 			width: 150px
 			flex-shrink: 0
 
-			img
+			.bounty-image-thumb
 				width: 100%
 				height: 100%
 				object-fit: cover
+				aspect-ratio: 16/9
 				background-size: cover
-				position: absolute
+				position: relative
 
 			.bounty-prize
 				font-weight: bold
@@ -153,10 +174,22 @@
 				margin-bottom: 0.25rem
 				font-weight: 900
 
+			.bounty-description
+				// 2 lines
+				display: -webkit-box
+				-webkit-line-clamp: 2
+				-webkit-box-orient: vertical
+				overflow: hidden
+
 			p
 				text-wrap: balance
 				margin-bottom: 0.5rem
 
 				&.meta
 					font-size: 0.75rem
+
+		.bounty-actions
+			display: flex
+			justify-content: flex-end
+			gap: 0.5rem
 </style>

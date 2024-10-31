@@ -1,13 +1,14 @@
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 
 export const useWinnersStore = defineStore('winnersBounty', () => {
 
 	const winners = ref([]);
 	const numberOfWinners = ref(1);
+
 	const setWinner = (data) => {
 		// Buscar la posición correcta para insertar el ganador
 		let insertIndex = winners.value.findIndex(winner => data.position < winner.position);
-		if (insertIndex === -1) {
+		if(insertIndex === -1) {
 			insertIndex = winners.value.length; // Insertar al final si no se encuentra una posición menor
 		}
 
@@ -18,8 +19,14 @@ export const useWinnersStore = defineStore('winnersBounty', () => {
 		winners.value.splice(insertIndex, 0, data);
 
 		console.info('Winner set:', winners.value);
-	}
+	};
 
+	const removeWinner = (idNear) => {
+		// remove from winners
+		console.info('Removing winner:', idNear);
+		winners.value = winners.value.filter(winner => winner.idNear !== idNear);
+		console.info('Winner removed:', winners.value);
+	};
 
 	const finalizeBounty = async () => {
 		const idBounty = winners.value[0].idBounty;
@@ -33,20 +40,21 @@ export const useWinnersStore = defineStore('winnersBounty', () => {
 		const res = await $fetch(useRuntimeConfig().public.apiURL + '/bounties/' + idBounty, {
 			method: 'POST',
 			body: JSON.stringify({
-				idBounty
+				idBounty,
 			}),
 			headers: {
 				'Content-Type': 'application/json',
-			}
+			},
 		});
 		console.info('Bounty updated:', res);
 		return hash;
-	}
-
+	};
 
 	return {
 		setWinner,
+		removeWinner,
 		numberOfWinners,
-		winners
+		winners,
+		finalizeBounty,
 	};
 });

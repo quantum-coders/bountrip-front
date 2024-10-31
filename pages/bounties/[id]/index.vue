@@ -3,7 +3,7 @@
 		<div class="bounty-banner">
 			<div class="banner-info">
 				<div class="container d-flex align-items-end justify-content-between">
-					<div class="shadow"/>
+					<div class="shadow" />
 
 					<div class="info-container">
 						<h2>{{ bounty?.title }}</h2>
@@ -23,7 +23,8 @@
 
 					<div class="actions d-flex align-items-center gap-2" v-if="canFinalize(bounty)">
 						<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
-						<a href="#" @click.prevent="mode = 'plans'" class="btn btn-primary">View submissions</a>
+						<a href="#" @click.prevent="mode = 'plans'" class="btn btn-secondary">View submissions</a>
+						<a href="#" class="btn btn-warning">Close Bounty</a>
 					</div>
 				</div>
 			</div>
@@ -49,7 +50,7 @@
 							<small>{{ labels[i] }}</small>
 							<span>
 								<span class="icon">
-									<icon name="simple-icons:near"/>
+									<icon name="simple-icons:near" />
 								</span>
 								{{ p }} NEAR
 							</span>
@@ -106,7 +107,7 @@
 					<!-- Added place details -->
 					<div class="place-details">
 						<h4>Location Details</h4>
-						<div class="map" id="map"/>
+						<div class="map" id="map" />
 						<p>{{ bounty?.metas?.place?.formatted_address }}</p>
 					</div>
 
@@ -119,7 +120,7 @@
 								:key="index"
 								class="photo-item"
 							>
-								<img :src="photo.url" :alt="bounty?.metas?.placeName"/>
+								<img :src="photo.url" :alt="bounty?.metas?.placeName" />
 								<small class="photo-attribution" v-html="photo.attribution[0]"></small>
 							</div>
 						</div>
@@ -146,15 +147,12 @@
 				</div>
 
 				<div v-else-if="mode === 'plans'" class="bounty-submissions">
-					<h4 class="fw-bolder">Submissions</h4>
-					<p>Here are all the submissions the users have tailored for your trip. Enjoy!</p>
-
-					<div class="flex pb-3">
-						<bounty-winners
-							v-if="bounty.winners"
-						/>
+					<div class="mb-3">
+						<bounty-winners v-if="bounty.winners" />
 					</div>
 
+					<h4 class="fw-bolder">Submissions</h4>
+					<p>Here are all the submissions the users have tailored for your trip. Enjoy!</p>
 					<article class="plan" v-for="p in bounty.plans">
 						<h4 class="fw-bolder">{{ p.title }} <small>by {{ p.user.idNear }}</small></h4>
 						<p class="mb-0">{{ p.content }}</p>
@@ -167,27 +165,39 @@
 
 				<div v-else class="single-plan">
 
-					<div class="text-end mb-4">
-						<p class="mb-0">Select a price for this Trip Plan</p>
-						<div class="prizes d-flex gap-2 justify-content-end">
-							<a
-								class="select-prize-cta"
-								v-for="(prize, i) in bounty.prizes"
-								:key="i"
-								@click="setWinner(i)"
-								:class="{ 'bg-primary text-white opacity-75': isWinnerSelected(i) }"
-							>
-							<span class="position">
-							  {{ labels[i] }}</span>
-								<small>{{ prize }} NEAR</small>
-							</a>
+					<div class="mb-4">
+						<div class="prizes">
+							<p class="mb-0">Select a price for this Trip Plan</p>
+							<div class="ctas">
+								<a
+									class="select-prize-cta"
+									v-for="(prize, i) in bounty.prizes"
+									:key="i"
+									@click="setWinner(i)"
+									:class="{
+										'is-selected': isWinnerSelected(i),
+										'is-exact-winner': isExactWinnerSelected(selectedPlan.user.idNear, i)
+									}"
+								>
+									<span class="position">{{ labels[i] }}</span>
+									<small>{{ prize }} NEAR</small>
+								</a>
+							</div>
 						</div>
+						<p class="text-end">
+							<a
+								href="#"
+								class="btn btn-sm btn-link"
+								v-if="isWinner(selectedPlan.user.idNear)"
+								@click.prevent="winnerStore.removeWinner(selectedPlan.user.idNear)"
+							>Clear prize</a>
+						</p>
 					</div>
 					<h4 class="fw-bolder">
 						{{ selectedPlan.title }}
 						<small>by {{ selectedPlan.user.idNear }}</small>
 					</h4>
-					<p class="mb-5" v-html="nltobr(selectedPlan.content)"/>
+					<p class="mb-5" v-html="nltobr(selectedPlan.content)" />
 
 					<h4 class="fw-bolder mb-3">Recommended Places</h4>
 					<div class="" v-for="p in selectedPlan.metas.places">
@@ -212,7 +222,7 @@
 								<h4 class="place-title mb-0">{{ p.placeName }}</h4>
 								<p class="d-flex align-items-center gap-2 mb-0">
 									<span v-if="p.placeRating">
-										<plan-rating :rating="p.placeRating"/>
+										<plan-rating :rating="p.placeRating" />
 									</span>
 									<span class="reviews" v-if="p.placeReviews">
 										{{ p.placeReviews.length }} review{{ p.placeReviews.length > 1 ? 's' : '' }}
@@ -240,15 +250,15 @@
 </template>
 <script setup>
 	import * as changeCase from 'change-case';
-	import {useWinnersStore} from "~/stores/winnersBounty.store";
 
-	definePageMeta({layout: 'bountrip'});
+	definePageMeta({ layout: 'bountrip' });
 
 	const bounty = ref(null);
 	const route = useRoute();
 	const router = useRouter();
 
 	const selectedPlan = ref(null);
+	const winnerStore = useWinnersStore();
 
 	const labels = [
 		'First Place',
@@ -260,9 +270,17 @@
 
 	const mode = ref('bounty');
 	const isWinnerSelected = (position) => {
-		const winnersStore = useWinnersStore();
-		return winnersStore.winners && winnersStore.winners.some(winner => winner.position === position);
+		return winnerStore.winners && winnerStore.winners.some(winner => winner.position === position);
 	};
+
+	const isExactWinnerSelected = (idNear, position) => {
+		return winnerStore.winners && winnerStore.winners.some(winner => winner.position === position) && winnerStore.winners.some(winner => winner.idNear === idNear);
+	};
+
+	const isWinner = (idNear) => {
+		return winnerStore.winners && winnerStore.winners.some(winner => winner.idNear === idNear);
+	};
+
 	const canFinalize = (bounty) => {
 		return (
 			bounty.creator === useWalletStore().accountId &&
@@ -307,14 +325,16 @@
 	const setWinner = (index) => {
 		useWinnersStore().setWinner({
 			position: index,
+			title: selectedPlan.value.title,
+			idPlan: selectedPlan.value.id,
 			idNear: selectedPlan.value.user.idNear,
 			idBounty: selectedPlan.value.idBounty,
-		})
-	}
+		});
+	};
 	const goToBountySubmission = (bounty) => {
 		console.info('bounty', bounty);
-		if (bounty.isActive) {
-			router.push(`/bounties/${bounty.id}/new`);
+		if(bounty.isActive) {
+			router.push(`/bounties/${ bounty.id }/new`);
 		}
 	};
 
@@ -526,25 +546,52 @@
 		padding: 2rem
 		flex-grow: 1
 
-		.select-prize-cta
-			font-size: 1rem
-			background: var(--brand1)
+		.prizes
+			display: flex
 			border-radius: 100px
-			padding: 0.5rem 2rem
-			color: white
-			text-decoration: none
-			line-height: 1
-			cursor: pointer
+			border: 1px solid var(--brand2)
+			overflow: hidden
+			align-items: center
 
-			&:hover
-				background: var(--brand2)
+			p
+				padding: 0 1rem
 
-			span
-				margin-bottom: 0
-
-			small
-				font-size: 0.75rem
+			.ctas
+				flex-grow: 1
 				display: flex
+				align-items: center
+
+				.select-prize-cta
+					font-size: 1rem
+					padding: 0.5rem 2rem
+					text-decoration: none
+					line-height: 1
+					cursor: pointer
+					border-right: 1px solid var(--brand2)
+					flex-grow: 1
+
+					&.is-selected
+						background: #CCC
+
+					&.is-exact-winner
+						background: var(--brand1)
+						color: white
+
+					&:first-child
+						border-left: 1px solid var(--brand2)
+
+					&:last-child
+						border-right: none
+
+					&:hover
+						background: var(--brand2)
+
+					span
+						margin-bottom: 0
+
+					small
+						font-size: 0.75rem
+						display: block
 
 		h4
 			small

@@ -1,11 +1,10 @@
 <template>
 	<div class="selected-prizes">
-		<h4 v-if="selectedPrizes.length > 0" class="fw-bolder mb-3">
-			Selected Prizes
-		</h4>
-		<span class="text-muted small">
-      These are the prizes that have been selected for the winners of the bounty. Click finalize to save the winners and trigger the smart contract automatic distribution.
-    </span>
+		<h4 v-if="selectedPrizes.length > 0" class="fw-bolder mb-0">Selected Prizes</h4>
+		<p>
+			These are the prizes that have been selected for the winners of the bounty. Click finalize to save the winners and trigger the smart contract automatic distribution.
+		</p>
+
 		<ul v-if="selectedPrizes.length > 0" class="list-group">
 			<li
 				v-for="(winner, index) in selectedPrizes"
@@ -13,7 +12,7 @@
 				class="list-group-item d-flex justify-content-between align-items-center"
 			>
 				<span>{{ labels[winner.position] }}:</span>
-				<span class="fw-bold">{{ winner.idNear }}</span>
+				<span class="fw-bold">{{ winner.idNear }} with {{ winner.title }}</span>
 			</li>
 		</ul>
 		<p v-else>No prizes have been selected yet.</p>
@@ -49,7 +48,7 @@
 		try {
 			await winnersStore.finalizeBounty();
 			// Puedes agregar aquí lógica adicional, como mostrar un mensaje de éxito o redirigir al usuario
-		} catch (error) {
+		} catch(error) {
 			console.error('Error finalizing bounty:', error);
 			// Puedes agregar aquí lógica para manejar el error, como mostrar un mensaje de error al usuario
 		}

@@ -15,110 +15,9 @@
 
 				<!-- Lista de Bounties -->
 				<div class="bounty-list">
-					<article class="bounty" v-for="b in bounties" :key="b.id">
-						<!-- Enlaces Restringidos -->
-						<div class="bounty-image">
-							<nuxt-link :to="`/bounties/${b.id}`">
-								<img
-									:src="b.metas.placePhotos[0].url"
-									class="bounty-image-thumb"
-									alt="Imagen de la Bounty"
-								/>
-							</nuxt-link>
-							<span class="bounty-prize">{{ b.totalPrize }} NEAR</span>
-						</div>
-
-						<div class="bounty-info">
-							<div class="d-flex justify-content-end mb-2">
-								<span
-									class="badge"
-									:class="b.isActive ? 'bg-success' : 'bg-secondary'"
-								>{{ b.isActive ? 'Active' : 'Finished' }}</span>
-							</div>
-
-							<h4>
-								<nuxt-link :to="`/bounties/${b.id}`" class="text-decoration-none text-dark">
-									{{ b.title }}
-								</nuxt-link>
-							</h4>
-
-							<p class="bounty-description">{{ b.metas.description }}</p>
-
-							<bounty-meta-info
-								:metas="b.metas"
-								:created="b.created"
-								:participants="b.participants || []"
-								class="mb-2"
-							/>
-
-							<!-- Botones de Acción -->
-							<div class="bounty-actions">
-								<button
-									v-if="canFinalize(b)"
-									@click="$emit('finalize', b)"
-									class="btn btn-primary btn-sm"
-								>
-									Finalize Bounty
-								</button>
-
-								<button
-									v-if="canParticipate(b)"
-									@click="participate(b)"
-									class="btn btn-warning btn-sm"
-								>
-									Submit Plan
-								</button>
-
-								<nuxt-link :to="`/bounties/${b.id}`" class="btn btn-secondary btn-sm">
-									View Bounty
-								</nuxt-link>
-							</div>
-						</div>
-
-						<!-- Botones de Toggle -->
-						<!--<div>
-							<button
-								class="btn btn-link p-0 me-3"
-								@click.stop="toggleParticipants(b.id)"
-								v-if="b.participants?.length"
-							>
-								{{ isParticipantsVisible(b.id) ? 'Hide Participants' : 'View Participants' }}
-							</button>
-							<button
-								class="btn btn-link p-0"
-								@click.stop="toggleWinners(b.id)"
-								v-if="b.winners?.length"
-							>
-								{{ isWinnersVisible(b.id) ? 'Hide Winners' : 'View Winners' }}
-							</button>
-						</div>-->
-
-						<!-- Sección de Participantes -->
-						<!--<div class="mt-2" v-if="b.participants?.length && isParticipantsVisible(b.id)">
-							<ul class="list-group list-group-flush mt-2">
-								<li
-									v-for="participant in b.participants"
-									:key="participant"
-									class="list-group-item"
-								>
-									{{ participant }}
-								</li>
-							</ul>
-						</div>-->
-
-						<!-- Sección de Ganadores -->
-						<div v-if="b.winners?.length && isWinnersVisible(b.id)">
-							<ul class="list-group list-group-flush mt-2">
-								<li
-									v-for="winner in b.winners"
-									:key="winner"
-									class="list-group-item"
-								>
-									{{ winner }}
-								</li>
-							</ul>
-						</div>
-					</article>
+					<template v-for="b in bounties" :key="b.id">
+						<bounty-card :bounty="b" />
+					</template>
 				</div>
 			</div>
 
@@ -133,52 +32,14 @@
 	// Estado de las Bounties
 	const bounties = ref([]);
 
-	// Estados de visibilidad para Participantes y Ganadores por ID de Bounty
-	const participantsVisibility = ref({});
-	const winnersVisibility = ref({});
-
 	// Meta de la Página
 	definePageMeta({ layout: 'bountrip' });
 
 	// ID del Usuario Actual (Reemplazar con la lógica real de tu aplicación)
 	const userAccountId = ref('quantum-coders.testnet'); // Ejemplo, reemplazar según sea necesario
 
-	// Función para alternar la visibilidad de Participantes
-	const toggleParticipants = (id) => {
-		participantsVisibility.value[id] = !participantsVisibility.value[id];
-	};
-
-	// Función para alternar la visibilidad de Ganadores
-	const toggleWinners = (id) => {
-		winnersVisibility.value[id] = !winnersVisibility.value[id];
-	};
-
-	// Verificar si los Participantes están visibles
-	const isParticipantsVisible = (id) => {
-		return participantsVisibility.value[id];
-	};
-
 	const participate = (b) => {
 		useRouter().push(`/bounties/${ b.id }/new`);
-	};
-
-	// Verificar si los Ganadores están visibles
-	const isWinnersVisible = (id) => {
-		return winnersVisibility.value[id];
-	};
-
-	// Determinar si el usuario puede participar
-	const canParticipate = (bounty) => {
-		return bounty.isActive && bounty.creator !== useWalletStore().accountId;
-	};
-
-	// Determinar si el usuario puede finalizar la bounty
-	const canFinalize = (bounty) => {
-		return (
-			bounty.creator === useWalletStore().accountId &&
-			bounty.isActive &&
-			bounty.participants?.length > 0
-		);
 	};
 
 	// Obtener las Bounties al montar el componente
