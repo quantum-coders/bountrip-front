@@ -26,10 +26,11 @@
 							<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
 							<a href="#" @click.prevent="mode = 'plans'" class="btn btn-secondary">View submissions</a>
 						</div>
-						<a
+						<button
 							href="#"
 							class="btn btn-warning"
 							@click.prevent="closeBounty(bounty)"
+							:disabled="loading"
 						>
 							<span v-if="loading"
 								class="disabled"
@@ -37,7 +38,7 @@
 								Closing...
 							</span>
 							<span v-else>Close Bounty</span>
-						</a></div>
+						</button></div>
 				</div>
 			</div>
 		</div>
