@@ -22,22 +22,15 @@
 					</div>
 
 					<div class="actions d-flex align-items-center gap-2" v-if="canFinalize(bounty)">
-						<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
-						<a href="#" @click.prevent="mode = 'plans'" class="btn btn-secondary">View submissions</a>
-						<a
-							href="#"
-							class="btn btn-warning"
-							@click.prevent="closeBounty(bounty)"
-						>
-							<span v-if="loading" class="spinner-border spinner-border-sm" role="status"
-								  aria-hidden="true"></span>
-							<span v-else>Close Bounty</span>
-						</a>
+						<div class="btn-group">
+							<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
+							<a href="#" @click.prevent="mode = 'plans'" class="btn btn-secondary">View submissions</a>
+						</div>
+						<a href="#" class="btn btn-warning">Close Bounty</a>
 					</div>
 				</div>
 			</div>
 		</div>
-
 		<div class="container">
 			<div class="bounty-content">
 				<div class="shadow-left"></div>
@@ -47,7 +40,9 @@
 					<div class="sidebar-content">
 						<!-- Added creator info -->
 						<div class="creator-info mb-3">
-							<div class="avatar"></div>
+							<div class="avatar">
+								<icon name="simple-icons:near" />
+							</div>
 							<div class="user">
 								<small>Created by</small>
 								<span class="fw-bolder text-brand2">{{ bounty?.creator }}</span>
@@ -187,7 +182,7 @@
 									:key="i"
 									@click="setWinner(i)"
 									:class="{
-										'is-selected': isWinnerSelected(i),
+										'is-selected': isWinnerSelected(i) && !isExactWinnerSelected(selectedPlan.user.idNear, i),
 										'is-exact-winner': isExactWinnerSelected(selectedPlan.user.idNear, i)
 									}"
 								>
@@ -288,7 +283,7 @@
 	};
 
 	const isExactWinnerSelected = (idNear, position) => {
-		return winnerStore.winners && winnerStore.winners.some(winner => winner.position === position) && winnerStore.winners.some(winner => winner.idNear === idNear);
+		return winnerStore.winners && winnerStore.winners.some(winner => winner.position === position && winner.idNear === idNear);
 	};
 
 	const isWinner = (idNear) => {
@@ -462,6 +457,10 @@
 						height: 50px
 						background: #DDD
 						border-radius: 50%
+						display: flex
+						align-items: center
+						justify-content: center
+						color: var(--brand2)
 
 					.user
 						small
