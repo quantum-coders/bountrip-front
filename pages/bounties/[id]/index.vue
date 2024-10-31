@@ -31,7 +31,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="container">
 			<div class="bounty-content">
 				<div class="shadow-left"></div>
@@ -179,7 +178,7 @@
 									:key="i"
 									@click="setWinner(i)"
 									:class="{
-										'is-selected': isWinnerSelected(i),
+										'is-selected': isWinnerSelected(i) && !isExactWinnerSelected(selectedPlan.user.idNear, i),
 										'is-exact-winner': isExactWinnerSelected(selectedPlan.user.idNear, i)
 									}"
 								>
@@ -278,7 +277,7 @@
 	};
 
 	const isExactWinnerSelected = (idNear, position) => {
-		return winnerStore.winners && winnerStore.winners.some(winner => winner.position === position) && winnerStore.winners.some(winner => winner.idNear === idNear);
+		return winnerStore.winners && winnerStore.winners.some(winner => winner.position === position && winner.idNear === idNear);
 	};
 
 	const isWinner = (idNear) => {

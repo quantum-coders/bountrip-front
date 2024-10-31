@@ -16,13 +16,16 @@
 			</li>
 		</ul>
 		<p v-else>No prizes have been selected yet.</p>
-		<button
-			v-if="canFinalize"
-			class="btn btn-primary mt-3"
-			@click="finalizeBounty"
-		>
-			Finalize Bounty
-		</button>
+
+		<p class="text-end">
+			<button
+				v-if="canFinalize"
+				class="btn btn-primary mt-3"
+				@click="finalizeBounty"
+			>
+				Finalize Bounty
+			</button>
+		</p>
 	</div>
 </template>
 
@@ -41,7 +44,7 @@
 	const selectedPrizes = computed(() => winnersStore.winners);
 
 	const canFinalize = computed(() => {
-		return winnersStore.numberOfWinners === selectedPrizes.value.length;
+		return selectedPrizes.value.length > 0;
 	});
 
 	const finalizeBounty = async () => {
