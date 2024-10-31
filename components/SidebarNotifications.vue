@@ -3,7 +3,7 @@
 		<!-- Header -->
 		<div class="d-flex justify-content-between align-items-center mb-4">
 			<h5 class="fw-bold m-0">Transaction History</h5>
-			<span class="badge bg-primary rounded-pill">{{ interactions.length }}</span>
+			<span class="badge bg-primary rounded-pill">{{ interactions?.length || 0 }}</span>
 		</div>
 
 		<!-- Transaction List with Custom Scroll -->

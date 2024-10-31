@@ -182,10 +182,10 @@ export const useWalletStore = defineStore('wallet', () => {
 		}
 	};
 
-	const fetchParticipantBounties = async (participantId) => {
+	const fetchParticipantBounties = async () => {
 		try {
 			loading.value = true;
-			const response = await $fetch(`${ baseURL }/bounties/participant/${ participantId }`);
+			const response = await $fetch(`${ baseURL }/bounties/participant/${ accountId.value }`);
 			participantBounties.value = response.data;
 			return response.data;
 		} catch(error) {

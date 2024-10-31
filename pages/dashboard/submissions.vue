@@ -1,10 +1,20 @@
 <template>
 	<div class="p-3">
-		<bounty-card class="mb-3" v-for="i in 10" />
+		<template v-for="b in bounties" :key="b.id">
+			<bounty-card :bounty="b" />
+		</template>
 	</div>
 </template>
 
 <script setup>
+
+	const bounties = ref([]);
+	const walletStore = useWalletStore();
+
+	onMounted(async () => {
+		const res = await walletStore.fetchParticipantBounties(walletStore.accountId)
+		bounties.value = res
+	});
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
