@@ -1,6 +1,8 @@
 <template>
 	<div class="p-3" v-if="walletStore.user">
-		<bounty-card class="mb-3" v-for="i in 10" />
+		<template v-for="b in bounties" :key="b.id">
+			<bounty-card :bounty="b" />
+		</template>
 	</div>
 </template>
 
@@ -23,6 +25,12 @@
 
 	// watch walletStore.user and fetch bounties when user is set
 	watch(() => walletStore.user, async () => {
+		if (walletStore.user) {
+			await getBounties();
+		}
+	});
+
+	onMounted(async () => {
 		if (walletStore.user) {
 			await getBounties();
 		}

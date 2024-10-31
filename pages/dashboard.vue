@@ -12,10 +12,7 @@
 
 				<aside class="sidebar">
 					<div class="user-information pt-4">
-						<div class="avatar">
-							<icon name="simple-icons:near" />
-						</div>
-						<h2>Rodrigo Tejero</h2>
+						<h4 class="mb-0 text-muted">Welcome!</h4>
 						<p class="account-id">
 							<span class="icon">
 								<icon name="simple-icons:near" />
@@ -152,6 +149,7 @@
 			display: flex
 			align-items: center
 			gap: 0.5rem
+			font-size: 1.5rem
 
 			.icon
 				background: var(--brand2)
@@ -162,6 +160,7 @@
 				display: flex
 				align-items: center
 				justify-content: center
+				flex-shrink: 0
 
 				.iconify
 					font-size: 0.6em

@@ -1,19 +1,106 @@
 <template>
 	<article class="bounty">
-		<nuxt-link class="bounty-link" to="/bounty" />
-
+		<!-- Enlaces Restringidos -->
 		<div class="bounty-image">
-			<span class="bounty-prize">50 NEAR</span>
+			<nuxt-link :to="`/bounties/${bounty.id}`">
+				<img
+					:src="bounty.metas.placePhotos[0].url"
+					class="bounty-image-thumb"
+					alt="Imagen de la Bounty"
+				/>
+			</nuxt-link>
+			<span class="bounty-prize">{{ bounty.totalPrize }} NEAR</span>
 		</div>
+
 		<div class="bounty-info">
-			<h4>Looking for the best Tokyo adventure</h4>
-			<p>Hello friends! I'm looking for the ultimate adventure in Japan.</p>
-			<!--<bounty-meta-info class="mb-0" />-->
+			<div class="d-flex justify-content-end mb-2">
+				<span
+					class="badge"
+					:class="bounty.isActive ? 'bg-success' : 'bg-secondary'"
+				>{{ bounty.isActive ? 'Active' : 'Finished' }}</span>
+			</div>
+
+			<h4>
+				<nuxt-link :to="`/bounties/${bounty.id}`" class="text-decoration-none text-dark">
+					{{ bounty.title }}
+				</nuxt-link>
+			</h4>
+
+			<p class="bounty-description">{{ bounty.metas.description }}</p>
+
+			<bounty-meta-info
+				:metas="bounty.metas"
+				:created="bounty.created"
+				:participants="bounty.participants || []"
+				class="mb-2"
+			/>
+
+			<!-- Botones de Acción -->
+			<div class="bounty-actions">
+				<button
+					v-if="canFinalize(bounty)"
+					@click="$emit('finalize', bounty)"
+					class="btn btn-primary btn-sm"
+				>
+					Finalize Bounty
+				</button>
+
+				<button
+					v-if="canParticipate(bounty)"
+					@click="participate(bounty)"
+					class="btn btn-warning btn-sm"
+				>
+					Submit Plan
+				</button>
+
+				<nuxt-link :to="`/bounties/${bounty.id}`" class="btn btn-secondary btn-sm">
+					View Bounty
+				</nuxt-link>
+			</div>
+		</div>
+
+		<!-- Sección de Ganadores -->
+		<div v-if="bounty.winners?.length && isWinnersVisible(bounty.id)">
+			<ul class="list-group list-group-flush mt-2">
+				<li
+					v-for="winner in bounty.winners"
+					:key="winner"
+					class="list-group-item"
+				>
+					{{ winner }}
+				</li>
+			</ul>
 		</div>
 	</article>
 </template>
 
 <script setup>
+
+	const props = defineProps({
+		bounty: {
+			type: Object,
+			required: true,
+		},
+	});
+
+	const isWinnersVisible = (id) => {
+		return winnersVisibility.value[id];
+	};
+
+	// Determinar si el usuario puede participar
+	const canParticipate = (bounty) => {
+		return bounty.isActive && bounty.creator !== useWalletStore().accountId;
+	};
+
+	// Determinar si el usuario puede finalizar la bounty
+	const canFinalize = (bounty) => {
+		return (
+			bounty.creator === useWalletStore().accountId &&
+			bounty.isActive &&
+			bounty.participants?.length > 0
+		);
+	};
+
 </script>
 
 <!--suppress SassScssResolvedByNameOnly -->
@@ -36,8 +123,13 @@
 		.bounty-image
 			width: 150px
 			flex-shrink: 0
-			background: url('/images/thumb.jpg') no-repeat center center
-			background-size: cover
+
+			img
+				width: 100%
+				height: 100%
+				object-fit: cover
+				background-size: cover
+				position: absolute
 
 			.bounty-prize
 				font-weight: bold
