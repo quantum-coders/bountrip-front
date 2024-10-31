@@ -26,8 +26,15 @@
 							<a href="#" @click.prevent="mode = 'bounty'" class="btn btn-primary">View my bounty</a>
 							<a href="#" @click.prevent="mode = 'plans'" class="btn btn-secondary">View submissions</a>
 						</div>
-						<a href="#" class="btn btn-warning">Close Bounty</a>
-					</div>
+						<a
+							href="#"
+							class="btn btn-warning"
+							@click.prevent="closeBounty(bounty)"
+						>
+							<span v-if="loading" class="spinner-border spinner-border-sm" role="status"
+								  aria-hidden="true"></span>
+							<span v-else>Close Bounty</span>
+						</a></div>
 				</div>
 			</div>
 		</div>
@@ -41,7 +48,7 @@
 						<!-- Added creator info -->
 						<div class="creator-info mb-3">
 							<div class="avatar">
-								<icon name="simple-icons:near" />
+								<icon name="simple-icons:near"/>
 							</div>
 							<div class="user">
 								<small>Created by</small>
