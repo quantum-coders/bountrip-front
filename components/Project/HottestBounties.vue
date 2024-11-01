@@ -5,13 +5,22 @@
 
 			<div class="bounties mb-4">
 				<div class="row gx-3">
-					<div class="col-3" v-for="i in 4">
-						<article class="bounty-card">
-							<span class="bounty-prize">50 NEAR</span>
+					<div class="col-3" v-for="bounty in bountiesToShow">
+						<article class="bounty-card"
+								 @click="$router.push(`/bounties/${bounty.id}`)"
+								 :style="{
+                        background: `var(--brand1) url('${bounty.metas.placePhotos[0].url}') no-repeat center center`,
+                        backgroundSize: 'auto 100%'
+                      }"
+						>
+							<span class="bounty-prize"> {{ bounty.totalPrize }}  NEAR</span>
 
 							<div class="bounty-info">
-								<h3 class="bounty-title">Looking for the best Tokyo adventure</h3>
-								<p class="bounty-days mb-0">5 days, 4 nights</p>
+								<bounty-meta-info
+									:metas="bounty.metas"
+									:created="bounty.created"
+									:participants="bounty.participants || []"
+									class="mb-2"/>
 							</div>
 						</article>
 					</div>
@@ -26,11 +35,22 @@
 </template>
 
 <script setup>
+	const bounties = ref([]);
+	// Obtener las Bounties al montar el componente
+	onMounted(async () => {
+		try {
+			const {data} = await $fetch(`${useRuntimeConfig().public.apiURL}/bounties`);
+			bounties.value = data;
+		} catch (error) {
+			console.error('Error fetching bounties:', error);
+		}
+	});
+
+	// just take maximum 4 bounties
+	const bountiesToShow = computed(() => bounties.value.slice(0, 4));
 </script>
 
-<!--suppress SassScssResolvedByNameOnly -->
 <style lang="sass" scoped>
-
 	.title
 		font-weight: 900
 
@@ -46,8 +66,6 @@
 
 	.bounty-card
 		aspect-ratio: 0.75
-		background: var(--brand1) url('/images/splash/japan.jpg') no-repeat center center
-		background-size: auto 100%
 		border-radius: 0.5rem
 		color: white
 		padding: 1rem
@@ -55,10 +73,10 @@
 		flex-direction: column
 		justify-content: flex-end
 		transition: background-size 0.3s
+		position: relative
 
 		&:hover
-			// scale background image
-			background-size: auto 110%
+			background-size: auto 110% !important
 
 		&:before
 			content: ''
@@ -92,5 +110,4 @@
 				font-weight: bold
 				margin-bottom: 0.5rem
 				text-wrap: balance
-
 </style>
