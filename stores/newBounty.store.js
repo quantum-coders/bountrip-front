@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 
 export const useNewBountyStore = defineStore('newBounty', () => {
 
@@ -19,8 +19,8 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 	const step = ref(1);
 
 	const startBounty = (callback) => {
-		if(bounty.value.place && bounty.value.placeName) {
-			if(typeof callback === 'function') {
+		if (bounty.value.place && bounty.value.placeName) {
+			if (typeof callback === 'function') {
 				callback();
 			}
 		}
@@ -28,7 +28,7 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 
 	const toggleTag = (tag) => {
 		const index = bounty.value.selectedTags.indexOf(tag);
-		if(index > -1) {
+		if (index > -1) {
 			bounty.value.selectedTags.splice(index, 1);
 		} else {
 			bounty.value.selectedTags.push(tag);
@@ -40,6 +40,7 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 	}
 
 	const newBounty = async () => {
+		console.info("Places photos structure", bounty.value.placePhotos);
 		const data = {
 			slug: `${bounty.value.title.toLowerCase().replace(/ /g, '-')}-${Date.now()}`,
 			metas: {
@@ -54,7 +55,6 @@ export const useNewBountyStore = defineStore('newBounty', () => {
 			title: bounty.value.title,
 			content: '',
 		}
-
 		const createdBounty = await useWalletStore().upsertBounty(data);
 		localStorage.setItem('idNewBounty', createdBounty.id);
 		const onChainCreatedBounty = await useWalletStore().createBounty({
